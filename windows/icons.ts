@@ -20,7 +20,7 @@ export class Icons extends Map {
     let cls = super.get(url);
     if (!cls) {
       cls = `iconcache-${++this.running}`;
-      const rule = `.${cls} { background-image: url(${url}); }`;
+      var rule = `.${cls} { background-image: url(${url}); }`;
       this.sheet.insertRule(rule);
       super.set(url, cls);
     }
