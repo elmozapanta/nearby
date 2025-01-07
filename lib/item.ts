@@ -23,7 +23,7 @@ export interface BaseItem {
   paused?: boolean;
 }
 
-const OPTIONPROPS = Object.freeze([
+var OPTIONPROPS = Object.freeze([
   "referrer", "usableReferrer",
   "description", "title", "pageTitle",
   "fileName",
@@ -37,7 +37,7 @@ const OPTIONPROPS = Object.freeze([
 ]);
 
 function maybeAssign(options: any, what: any) {
-  const type = typeof this[what];
+  var type = typeof this[what];
   if (type === "number" || type === "string" || type === "boolean") {
     return;
   }
@@ -110,7 +110,7 @@ export class Finisher {
 }
 
 function transfer(e: any, other: any) {
-  for (const p of TRANSFERABLE_PROPERTIES) {
+  for (var p of TRANSFERABLE_PROPERTIES) {
     if (!other[p] && e[p]) {
       other[p] = e[p];
     }
@@ -119,16 +119,16 @@ function transfer(e: any, other: any) {
 
 
 export function makeUniqueItems(items: any[][], mapping?: Function) {
-  const known = new Map();
-  const unique = [];
-  for (const itemlist of items) {
-    for (const e of itemlist) {
-      const other = known.get(e.url);
+  var known = new Map();
+  var unique = [];
+  for (var itemlist of items) {
+    for (var e of itemlist) {
+      var other = known.get(e.url);
       if (other) {
         transfer(e, other);
         continue;
       }
-      const finished = mapping ? mapping(e) : e;
+      var finished = mapping ? mapping(e) : e;
       if (!finished) {
         continue;
       }
