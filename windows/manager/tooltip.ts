@@ -11,7 +11,7 @@ import { DownloadItem } from "./table";
 
 function createInnerShadowGradient(
     ctx: CanvasRenderingContext2D, w: number, colors: string[]) {
-  var g = ctx.createLinearGradient(0, 0, 0, w);
+  const g = ctx.createLinearGradient(0, 0, 0, w);
   g.addColorStop(0, colors[0]);
   g.addColorStop(3.0 / w, colors[1]);
   g.addColorStop(4.0 / w, colors[2]);
@@ -38,7 +38,7 @@ function makeRoundedRectPath(
 
 function createVerticalGradient(
     ctx: CanvasRenderingContext2D, height: number, c1: string, c2: string) {
-  var g = ctx.createLinearGradient(0, 0, 0, height);
+  const g = ctx.createLinearGradient(0, 0, 0, height);
   g.addColorStop(0, c1);
   g.addColorStop(1, c2);
   return g;
@@ -95,15 +95,15 @@ function drawSpeedPass(
   }
 }
 
-var speedPasses = Object.freeze([
+const speedPasses = Object.freeze([
   { x: 4, y: 0, f: ["#EADF91", "#F4EFB1"] },
   { x: 2, y: 0, f: ["#DFD58A", "#D3CB8B"] },
   { x: 1, y: 0, f: ["#D0BA70", "#DFCF6F"] },
   { x: 0, y: 0, f: ["#FF8B00", "#FFDF38"], s: "#F98F00" }
 ]);
-var avgPass = Object.freeze({x: 0, y: 0, s: "rgba(0,0,200,0.3", sw: 2});
+const avgPass = Object.freeze({x: 0, y: 0, s: "rgba(0,0,200,0.3", sw: 2});
 
-var ELEMS = [
+const ELEMS = [
   "icon",
   "infos", "name", "from", "size", "date", "eta", "etalabel",
   "speedbox", "speedbar", "current", "average",
@@ -148,12 +148,12 @@ export class Tooltip {
     this.item = item;
     this.item.on("largeIcon", this.update);
 
-    var tmpl = (
+    const tmpl = (
       document.querySelector<HTMLTemplateElement>("#tooltip-template"));
     if (!tmpl) {
       throw new Error("template failed");
     }
-    var el = tmpl.content.firstElementChild;
+    const el = tmpl.content.firstElementChild;
     if (!el) {
       throw new Error("invalid template");
     }
@@ -161,7 +161,7 @@ export class Tooltip {
     this.adjust(pos);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    var self: any = this;
+    const self: any = this;
     ELEMS.forEach(e => {
       self[e] = this.elem.querySelector(`#tooltip-${e}`);
     });
@@ -175,12 +175,12 @@ export class Tooltip {
   }
 
   update() {
-    var {item} = this;
+    const {item} = this;
     if (!item.isFiltered) {
       this.dismiss();
       return;
     }
-    var icon = item.largeIcon;
+    const icon = item.largeIcon;
     this.icon.className = icon;
     this.name.textContent = item.currentFull;
     this.from.textContent = item.usable;
@@ -188,8 +188,8 @@ export class Tooltip {
     this.date.textContent = new Date(item.startDate).toLocaleString();
     this.eta.textContent = item.fmtETA;
 
-    var running = item.state === DownloadState.RUNNING;
-    var hidden = this.speedbox.classList.contains("hidden");
+    const running = item.state === DownloadState.RUNNING;
+    const hidden = this.speedbox.classList.contains("hidden");
 
     if (!running && !hidden) {
       this.eta.classList.add("single");
@@ -215,20 +215,20 @@ export class Tooltip {
   }
 
   drawSpeeds() {
-    var {stats} = this.item;
-    var {speedbar: canvas} = this;
+    const {stats} = this.item;
+    const {speedbar: canvas} = this;
 
     let w = canvas.width;
     let h = canvas.height;
-    var ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Cannot acquire 2d context");
     }
     --w; --h;
 
-    var boxFillStyle = createInnerShadowGradient(
+    const boxFillStyle = createInnerShadowGradient(
       ctx, h, ["#B1A45A", "#F1DF7A", "#FEEC84", "#FFFDC4"]);
-    var boxStrokeStyle = createInnerShadowGradient(
+    const boxStrokeStyle = createInnerShadowGradient(
       ctx, 8, ["#816A1D", "#E7BE34", "#F8CC38", "#D8B231"]);
 
     ctx.clearRect(0, 0, w, h);
@@ -256,7 +256,7 @@ export class Tooltip {
         speeds = speeds.map(() => 12);
       }
       else {
-        var r = (maxH - minH);
+        const r = (maxH - minH);
         speeds = speeds.map(function(speed) {
           return 3 + Math.round((h - 6) * (speed - minH) / r);
         });
@@ -267,8 +267,8 @@ export class Tooltip {
       ctx.save();
       ctx.clip();
 
-      var step = w / (speeds.length - 1);
-      for (var pass of speedPasses) {
+      const step = w / (speeds.length - 1);
+      for (const pass of speedPasses) {
         drawSpeedPass(ctx, h, step, pass, speeds);
       }
       drawSpeedPass(ctx, h, step, avgPass, avgs);
@@ -289,18 +289,18 @@ export class Tooltip {
     else {
       pos = this.lastPos;
     }
-    var {clientWidth, clientHeight} = this.elem;
+    const {clientWidth, clientHeight} = this.elem;
     if (!clientWidth) {
       this.elem.style.left = `${pos.x + 10}px`;
       this.elem.style.top = `${pos.y + 10}px`;
       return;
     }
 
-    var w = Math.max(
+    const w = Math.max(
       document.documentElement.clientWidth, window.innerWidth || 0);
-    var h = Math.max(
+    const h = Math.max(
       document.documentElement.clientHeight, window.innerHeight || 0);
-    var r = new Rect(pos.x + 10, pos.y + 10, 0, 0, clientWidth, clientHeight);
+    const r = new Rect(pos.x + 10, pos.y + 10, 0, 0, clientWidth, clientHeight);
     if (r.right > w) {
       r.offset(-clientWidth - 20, 0);
     }
