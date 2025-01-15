@@ -17,8 +17,8 @@ import { addClass, clampUInt, IS_MAC } from "./util";
 // eslint-disable-next-line no-unused-vars
 import { TableConfig } from "./config";
 
-var ROWS_SMALL_UPDATE = 5;
-var PIXEL_PREC = 5;
+const ROWS_SMALL_UPDATE = 5;
+const PIXEL_PREC = 5;
 
 interface KeyEvent extends UIEvent {
   readonly altKey: boolean;
@@ -87,7 +87,7 @@ export class BaseTable extends AbstractTable {
 
     this.version = version || 0;
     if (typeof elem === "string") {
-      var sel = document.querySelector(elem) as HTMLElement;
+      const sel = document.querySelector(elem) as HTMLElement;
       if (!sel) {
         throw new Error("Invalid selector");
       }
@@ -98,7 +98,7 @@ export class BaseTable extends AbstractTable {
     }
 
     this[ROWCACHE] = new LRUMap(ROW_CACHE_SIZE);
-    var reuse: Row[] = this[ROWREUSE] = [];
+    const reuse: Row[] = this[ROWREUSE] = [];
     this[ROWCACHE].onpurge = (_: any, v: Row) => {
       if (v && reuse.length < ROW_REUSE_SIZE) {
         reuse.push(v);
@@ -124,14 +124,14 @@ export class BaseTable extends AbstractTable {
   }
 
   makeDOM(config: TableConfig) {
-    var configColumns = "columns" in config ? config.columns : null;
-    var cols = this[COLS] = new Columns(this, configColumns || null);
+    const configColumns = "columns" in config ? config.columns : null;
+    const cols = this[COLS] = new Columns(this, configColumns || null);
 
-    var container = document.createElement("div");
-    var thead = document.createElement("div");
-    var columns = document.createElement("table");
-    var colrow = document.createElement("tr");
-    for (var c of cols.cols) {
+    const container = document.createElement("div");
+    const thead = document.createElement("div");
+    const columns = document.createElement("table");
+    const colrow = document.createElement("tr");
+    for (const c of cols.cols) {
       colrow.appendChild(c.elem);
     }
     addClass(colrow, "columnrow");
@@ -140,15 +140,15 @@ export class BaseTable extends AbstractTable {
     thead.appendChild(columns);
     addClass(thead, "head");
     thead.appendChild(cols.scrollSpace);
-    var selectionGrippy = document.createElement("div");
+    const selectionGrippy = document.createElement("div");
     addClass(selectionGrippy, "column-selection-grippy");
     selectionGrippy.textContent = "☰";
     this.selectionGrippy = selectionGrippy;
     thead.appendChild(selectionGrippy);
     container.appendChild(thead);
 
-    var tbody = this.body = document.createElement("div");
-    var table = document.createElement("table");
+    const tbody = this.body = document.createElement("div");
+    const table = document.createElement("table");
     table.setAttribute("tabindex", "1");
     addClass(table, "table"),
     tbody.appendChild(table);
@@ -156,7 +156,7 @@ export class BaseTable extends AbstractTable {
     container.appendChild(tbody);
 
     addClass(container, "container");
-    var {parentElement} = this.elem;
+    const {parentElement} = this.elem;
     if (parentElement) {
       parentElement.insertBefore(container, this.elem);
       parentElement.removeChild(this.elem);
@@ -191,13 +191,13 @@ export class BaseTable extends AbstractTable {
       return;
     }
     if (this[FOCUSROW] >= 0) {
-      var ofr = this.getRow(this.focusRow);
+      const ofr = this.getRow(this.focusRow);
       if (ofr) {
         ofr.focused(false);
       }
     }
     this[FOCUSROW] = rowid;
-    var row = this.getRow(rowid);
+    const row = this.getRow(rowid);
     if (row) {
       row.focused(true);
     }
@@ -229,16 +229,16 @@ export class BaseTable extends AbstractTable {
   }
 
   get visibleRange() {
-    var {rowHeight, visibleTop} = this;
-    var inset = visibleTop % rowHeight;
+    const {rowHeight, visibleTop} = this;
+    const inset = visibleTop % rowHeight;
     let top = visibleTop;
     let height = this.visibleHeight;
     if (inset) {
       top += rowHeight - inset;
       height -= rowHeight - inset;
     }
-    var firstIdx = clampUInt(top / rowHeight);
-    var lastIdx = firstIdx + clampUInt(
+    const firstIdx = clampUInt(top / rowHeight);
+    const lastIdx = firstIdx + clampUInt(
       Math.floor(height / rowHeight) - 1, this.rowCount - 1 - firstIdx);
     return new SelectionRange(firstIdx, lastIdx);
   }
@@ -269,7 +269,7 @@ export class BaseTable extends AbstractTable {
   }
 
   invalidateCell(rowid: number, colid: number) {
-    var row = this[VISIBLE].get(rowid) || this[ROWCACHE].get(rowid);
+    const row = this[VISIBLE].get(rowid) || this[ROWCACHE].get(rowid);
     if (!row) {
       return;
     }
@@ -277,7 +277,7 @@ export class BaseTable extends AbstractTable {
   }
 
   processInvalidated() {
-    for (var {colid, row} of this.invalidated) {
+    for (const {colid, row} of this.invalidated) {
       if (colid >= 0) {
         row.invalidateCell(colid);
       }
@@ -319,12 +319,12 @@ export class BaseTable extends AbstractTable {
     if (this.updating) {
       return;
     }
-    var record = new UpdateRecord(this, this[COLS].visible);
+    const record = new UpdateRecord(this, this[COLS].visible);
 
-    var firstRemaining = record.firstVisibleIdx - this.firstIdx;
-    var lastRemaining = this.lastIdx - record.lastVisibleIdx;
-    var firstRequired = Math.min(record.firstVisibleIdx, ROWS_SMALL_UPDATE);
-    var lastRequired = Math.min(
+    const firstRemaining = record.firstVisibleIdx - this.firstIdx;
+    const lastRemaining = this.lastIdx - record.lastVisibleIdx;
+    const firstRequired = Math.min(record.firstVisibleIdx, ROWS_SMALL_UPDATE);
+    const lastRequired = Math.min(
       this.rowCount - record.lastVisibleIdx - 1, ROWS_SMALL_UPDATE);
     if (record.rowHeight !== Number.MAX_SAFE_INTEGER &&
       firstRemaining >= firstRequired &&
@@ -340,7 +340,7 @@ export class BaseTable extends AbstractTable {
     this.beginUpdate();
     this[VISIBLE].clear();
     for (let i = record.firstIdx; i <= record.lastIdx; ++i) {
-      var row = this.createRow(i, record.cols);
+      const row = this.createRow(i, record.cols);
       row.selected(this.selection.contains(i));
       row.focused(this[FOCUSROW] === i);
       this[ROWCACHE].set(i, row);
@@ -364,20 +364,20 @@ export class BaseTable extends AbstractTable {
     if (!this.record) {
       return;
     }
-    var {record, table} = this;
+    const {record, table} = this;
     this.record = null;
-    var [first] = record.rows;
+    const [first] = record.rows;
     this[FIRSTROW] = first;
     try {
       if (table.firstChild) {
-        for (var row of Array.from(table.children)) {
+        for (const row of Array.from(table.children)) {
           if (!record.children.has(row)) {
             table.removeChild(row);
           }
         }
       }
       for (let i = 0, e = record.rows.length; i < e; ++i) {
-        var row = record.rows[i];
+        const row = record.rows[i];
         if (table.children[i] === row.elem) {
           continue;
         }
@@ -417,10 +417,10 @@ export class BaseTable extends AbstractTable {
   }
 
   setWidths() {
-    var first = this[FIRSTROW];
+    const first = this[FIRSTROW];
     if (first) {
       first.setWidths(this[COLS].visible);
-      var diff = this.head.clientWidth - this.body.clientWidth;
+      const diff = this.head.clientWidth - this.body.clientWidth;
       this[COLS].setScrollWidth(diff);
     }
   }
@@ -467,7 +467,7 @@ export class BaseTable extends AbstractTable {
   }
 
   toggleCurrent() {
-    var rowid = clampUInt(this.focusRow);
+    const rowid = clampUInt(this.focusRow);
     this.selection.toggle(rowid);
     this.selStartRow = rowid;
     this.focusRow = rowid;
@@ -479,14 +479,14 @@ export class BaseTable extends AbstractTable {
   }
 
   scrollIntoView(rowid: number) {
-    var vrange = this.visibleRange;
+    const vrange = this.visibleRange;
     if (vrange.contains(rowid - 1) && vrange.contains(rowid + 1)) {
       return;
     }
     let newTop;
     if (rowid + 1 >= vrange.end) {
       // Move down
-      var vrow = rowid - vrange.length + 2;
+      const vrow = rowid - vrange.length + 2;
       newTop = vrow * this.rowHeight;
     }
     else {
@@ -507,12 +507,12 @@ export class BaseTable extends AbstractTable {
   }
 
   navigateUp(evt: KeyboardEvent) {
-    var rowid = clampUInt(this.focusRow - 1, this.rowCount - 1);
+    const rowid = clampUInt(this.focusRow - 1, this.rowCount - 1);
     this.navigate(rowid, evt);
   }
 
   navigateDown(evt: KeyboardEvent) {
-    var rowid = clampUInt(this.focusRow + 1, this.rowCount - 1);
+    const rowid = clampUInt(this.focusRow + 1, this.rowCount - 1);
     this.navigate(rowid, evt);
   }
 
@@ -521,18 +521,18 @@ export class BaseTable extends AbstractTable {
   }
 
   navigateBottom(evt: KeyboardEvent) {
-    var rowid = clampUInt(this.rowCount - 1);
+    const rowid = clampUInt(this.rowCount - 1);
     this.navigate(rowid, evt);
   }
 
   navigatePageUp(evt: KeyboardEvent) {
-    var rowid = clampUInt(
+    const rowid = clampUInt(
       this.focusRow - this.visibleRange.length, this.rowCount - 1);
     this.navigate(rowid, evt);
   }
 
   navigatePageDown(evt: KeyboardEvent) {
-    var rowid = clampUInt(
+    const rowid = clampUInt(
       this.focusRow + this.visibleRange.length, this.rowCount - 1);
     this.navigate(rowid, evt);
   }
