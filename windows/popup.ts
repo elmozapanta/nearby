@@ -4,8 +4,8 @@
 import { localize } from "../lib/i18n";
 import "./theme";
 
-declare var browser: any;
-declare var chrome: any;
+declare let browser: any;
+declare let chrome: any;
 
 const runtime = typeof browser !== "undefined" ?
   browser.runtime :
@@ -13,7 +13,7 @@ const runtime = typeof browser !== "undefined" ?
 
 function handler(e: Event) {
   e.preventDefault();
-  var target = e.target as HTMLElement;
+  let target = e.target as HTMLElement;
   if (!target) {
     return;
   }
