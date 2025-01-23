@@ -8,7 +8,7 @@ import Renamer from "./renamer";
 // eslint-disable-next-line no-unused-vars
 import { BaseItem } from "../item";
 
-var SAVEDPROPS = [
+const SAVEDPROPS = [
   "state",
   "url",
   "usable",
@@ -42,7 +42,7 @@ var SAVEDPROPS = [
   "position",
 ];
 
-var DEFAULTS = {
+const DEFAULTS = {
   state: QUEUED,
   error: "",
   serverName: "",
@@ -130,9 +130,9 @@ export class BaseDownload {
 
   assign(options: BaseItem) {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    var self: any = this;
-    var other: any = options;
-    for (var prop of SAVEDPROPS) {
+    const self: any = this;
+    const other: any = options;
+    for (const prop of SAVEDPROPS) {
       if (prop in options) {
         self[prop] = other[prop];
       }
@@ -161,7 +161,7 @@ export class BaseDownload {
   }
 
   get urlName() {
-    var path = parsePath(this.uURL);
+    const path = parsePath(this.uURL);
     if (path.name) {
       return path.name;
     }
@@ -178,9 +178,9 @@ export class BaseDownload {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    var self: any = this;
-    var rv: any = {};
-    for (var prop of SAVEDPROPS) {
+    const self: any = this;
+    const rv: any = {};
+    for (const prop of SAVEDPROPS) {
       if (prop in self) {
         rv[prop] = self[prop];
       }
@@ -190,10 +190,10 @@ export class BaseDownload {
   }
 
   toMsg() {
-    var rv = this.toJSON();
+    const rv = this.toJSON();
     rv.sessionId = this.sessionId;
     rv.finalName = this.finalName;
-    var {dest} = this;
+    const {dest} = this;
     rv.destName = dest.name;
     rv.destPath = dest.path;
     rv.destFull = dest.full;
