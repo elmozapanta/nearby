@@ -32,21 +32,21 @@ export default abstract class ModalDialog {
     this._dismiss = null;
     this._default = null;
 
-    const el = document.createElement("div");
+    let el = document.createElement("div");
     el.classList.add("modal-container");
 
-    const cont = document.createElement("section");
+    let cont = document.createElement("section");
     cont.classList.add("modal-dialog");
 
-    const body = document.createElement("article");
+    let body = document.createElement("article");
     body.classList.add("modal-body");
     body.appendChild(await this.getContent());
     cont.appendChild(body);
 
-    const footer = document.createElement("footer");
+    let footer = document.createElement("footer");
     footer.classList.add("modal-footer");
-    for (const b of this.buttons) {
-      const button = document.createElement("button");
+    for (let b of this.buttons) {
+      let button = document.createElement("button");
       button.classList.add("modal-button");
       if (b.default) {
         if (this._default) {
@@ -69,7 +69,7 @@ export default abstract class ModalDialog {
       });
       footer.appendChild(button);
     }
-    const nix = !navigator.platform.startsWith("Win");
+    let nix = !navigator.platform.startsWith("Win");
     if (this._default && nix) {
       footer.appendChild(this._default);
     }
@@ -116,7 +116,7 @@ export default abstract class ModalDialog {
     if (!this._showing) {
       return;
     }
-    const value = this.convertValue(button.value);
+    let value = this.convertValue(button.value);
     if (button.dismiss) {
       this._showing.reject(new Error(value));
     }
@@ -142,7 +142,7 @@ export default abstract class ModalDialog {
     if (this._showing) {
       throw new Error("Double show");
     }
-    const escapeHandler = (e: KeyboardEvent) => {
+    let escapeHandler = (e: KeyboardEvent) => {
       if (e.key !== "Escape") {
         return;
       }
@@ -152,11 +152,11 @@ export default abstract class ModalDialog {
       this.dismiss();
       return;
     };
-    const enterHandler = (e: KeyboardEvent) => {
+    let enterHandler = (e: KeyboardEvent) => {
       if (e.key !== "Enter") {
         return;
       }
-      const {localName} = e.target as HTMLElement;
+      let {localName} = e.target as HTMLElement;
       if (localName === "textarea" && !e.metaKey) {
         return;
       }
@@ -211,13 +211,13 @@ export default abstract class ModalDialog {
    * @param {string} oktext button text
    */
   static async inform(title: string, text: string, oktext: string) {
-    const dialog = new class extends ModalDialog {
+    let dialog = new class extends ModalDialog {
       getContent() {
-        const rv = document.createDocumentFragment();
-        const h = document.createElement("h1");
+        let rv = document.createDocumentFragment();
+        let h = document.createElement("h1");
         h.textContent = title || "Information";
         rv.appendChild(h);
-        const t = document.createElement("p");
+        let t = document.createElement("p");
         t.textContent = text || "";
         rv.appendChild(t);
         return rv;
@@ -247,13 +247,13 @@ export default abstract class ModalDialog {
   }
 
   static async confirm(title: string, text: string) {
-    const dialog = new class extends ModalDialog {
+    let dialog = new class extends ModalDialog {
       getContent() {
-        const rv = document.createDocumentFragment();
-        const h = document.createElement("h1");
+        let rv = document.createDocumentFragment();
+        let h = document.createElement("h1");
         h.textContent = title || "Confirm";
         rv.appendChild(h);
-        const t = document.createElement("p");
+        let t = document.createElement("p");
         t.textContent = text || "";
         rv.appendChild(t);
         return rv;
@@ -284,18 +284,18 @@ export default abstract class ModalDialog {
   }
 
   static async prompt(title: string, text: string, defaultValue: string) {
-    const dialog = new class extends ModalDialog {
+    let dialog = new class extends ModalDialog {
       _input: HTMLInputElement;
 
       getContent() {
-        const rv = document.createDocumentFragment();
-        const h = document.createElement("h1");
+        let rv = document.createDocumentFragment();
+        let h = document.createElement("h1");
         h.textContent = title || "Confirm";
         rv.appendChild(h);
-        const t = document.createElement("p");
+        let t = document.createElement("p");
         t.textContent = text || "";
         rv.appendChild(t);
-        const i = document.createElement("input");
+        let i = document.createElement("input");
         i.setAttribute("type", text);
         i.value = defaultValue || "";
         rv.appendChild(i);
