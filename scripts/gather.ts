@@ -4,15 +4,15 @@
 import { getTextLinks } from "../lib/textlinks";
 import { runtime } from "../lib/browser";
 
-var REG_CLEAN = /[\s\t\r\n\v]+/g;
-var pageTitle = document.title;
+const REG_CLEAN = /[\s\t\r\n\v]+/g;
+const pageTitle = document.title;
 
-var baseURL = function() {
-var base = document.querySelector("base[href]");
+const baseURL = function() {
+const base = document.querySelector("base[href]");
 let url;
 if (base) {
   try {
-    var burl = base.getAttribute("href");
+    const burl = base.getAttribute("href");
     if (burl) {
       url = new URL(burl);
     }
@@ -29,7 +29,7 @@ return url;
 }();
 
 function makeURL(url: string) {
-  var rv = new URL(url, baseURL);
+  const rv = new URL(url, baseURL);
   rv.hash = "";
   return rv;
 }
@@ -39,10 +39,10 @@ function sanitize(str: string | null | undefined) {
 }
 
 function *extractDescriptionInternal(parent: Node): Iterable<string> {
-  for (var node of Array.from(parent.childNodes)) {
+  for (const node of Array.from(parent.childNodes)) {
     switch (node.nodeType) {
     case Node.TEXT_NODE: {
-      var val = sanitize(node.textContent);
+      const val = sanitize(node.textContent);
       if (val) {
         yield val;
       }
@@ -64,7 +64,7 @@ function extractDescription(el: HTMLElement) {
 
 function urlToUsable(e: any, u: string) {
   try {
-    var usable = decodeURIComponent(u);
+    const usable = decodeURIComponent(u);
     if (usable !== u) {
       e.usable = usable;
     }
@@ -105,7 +105,7 @@ class Gatherer {
 
   collectLink(a: HTMLAnchorElement) {
     try {
-      var item = this.makeItem(a.href, a);
+      const item = this.makeItem(a.href, a);
       if (!item) {
         return item;
       }
@@ -123,9 +123,9 @@ class Gatherer {
   *collectSingleSourceInternal(el: HTMLImageElement | HTMLSourceElement) {
     // regular source handling
     {
-      var {src} = el;
+      const {src} = el;
       if (src) {
-        var item = this.makeItem(src, el);
+        const item = this.makeItem(src, el);
         if (item) {
           item.fileName = "";
           item.description = item.title;
@@ -136,14 +136,14 @@ class Gatherer {
 
     // srcset handling
     {
-      var {srcset} = el;
+      const {srcset} = el;
       if (srcset) {
-        var imgs = srcset.split(",").flatMap(e => {
-          var idx = e.lastIndexOf(" ");
+        const imgs = srcset.split(",").flatMap(e => {
+          const idx = e.lastIndexOf(" ");
           return (idx > 0 ? e.slice(0, idx) : e).trim();
         });
-        for (var i of imgs) {
-          var item = this.makeItem(i, el);
+        for (const i of imgs) {
+          const item = this.makeItem(i, el);
           if (item) {
             item.fileName = "";
             item.description = item.title;
@@ -157,14 +157,14 @@ class Gatherer {
   *collectImageInternal(img: HTMLImageElement) {
     try {
       // general handling
-      for (var item of this.collectSingleSourceInternal(img)) {
+      for (const item of this.collectSingleSourceInternal(img)) {
         yield item;
       }
 
       // currentSrc handling
       {
-        var {currentSrc} = img;
-        var item = this.makeItem(currentSrc, img);
+        const {currentSrc} = img;
+        const item = this.makeItem(currentSrc, img);
         if (item) {
           item.fileName = "";
           item.description = item.title;
@@ -174,9 +174,9 @@ class Gatherer {
 
       // lazy-loading / <picture>
       if (img.parentElement instanceof HTMLPictureElement) {
-        var sourceEls = img.parentElement.querySelectorAll("source");
-        for (var sourceEl of sourceEls) {
-          for (var item of this.collectSingleSourceInternal(sourceEl)) {
+        const sourceEls = img.parentElement.querySelectorAll("source");
+        for (const sourceEl of sourceEls) {
+          for (const item of this.collectSingleSourceInternal(sourceEl)) {
             yield item;
           }
         }
@@ -187,12 +187,12 @@ class Gatherer {
         let dataUrl = (img.dataset &&
           (img.dataset.src || img.dataset.source)) || null;
         if (!dataUrl || dataUrl.trim() === "") {
-          var parent = img.parentElement;
+          const parent = img.parentElement;
           dataUrl = (parent && parent.dataset &&
             (parent.dataset.src || parent.dataset.source)) || null;
         }
         if (dataUrl) {
-          var item = this.makeItem(dataUrl, img);
+          const item = this.makeItem(dataUrl, img);
           if (item) {
             item.fileName = "";
             item.description = item.title;
@@ -212,11 +212,11 @@ class Gatherer {
 
   collectMediaInternal(title: string | undefined | null, el: HTMLMediaElement) {
     try {
-      var src = el.currentSrc || el.getAttribute("src");
+      const src = el.currentSrc || el.getAttribute("src");
       if (!src) {
         return null;
       }
-      var item = this.makeItem(src, el, title);
+      const item = this.makeItem(src, el, title);
       if (!item) {
         return null;
       }
@@ -232,9 +232,9 @@ class Gatherer {
 
   collectMedia(el: HTMLMediaElement) {
     try {
-      var item = this.collectMediaInternal(el.getAttribute("title"), el);
-      var rv = item ? [item] : [];
-      var title: string | undefined = item && item.title ||
+      const item = this.collectMediaInternal(el.getAttribute("title"), el);
+      const rv = item ? [item] : [];
+      const title: string | undefined = item && item.title ||
       el.getAttribute("title");
       rv.push(...Array.from(el.querySelectorAll("source")).
         map(this.collectMediaInternal.bind(this, title)));
@@ -248,11 +248,11 @@ class Gatherer {
 
   *findTexts() {
     let doc = document;
-    var {selection} = this;
+    const {selection} = this;
     if (this.selectionOnly && selection) {
       let copy = document.createElement("div");
       for (let i = 0; i < selection.rangeCount; ++i) {
-        var r = selection.getRangeAt(i);
+        const r = selection.getRangeAt(i);
         copy.appendChild(r.cloneContents());
       }
       doc = document.implementation.createDocument(
@@ -260,7 +260,7 @@ class Gatherer {
       copy = doc.adoptNode(copy);
       doc.documentElement.appendChild(doc.adoptNode(copy));
     }
-    var set = doc.evaluate(
+    const set = doc.evaluate(
       "//*[not(ancestor-or-self::a) and " +
         "not(ancestor-or-self::style) and " +
         "not(ancestor-or-self::script)]/text()",
@@ -270,7 +270,7 @@ class Gatherer {
       null
     );
     for (let r = set.iterateNext(); r; r = set.iterateNext()) {
-      var {textContent} = r;
+      const {textContent} = r;
       if (textContent) {
         yield textContent;
         continue;
@@ -279,7 +279,7 @@ class Gatherer {
   }
 
   *findTextLinks() {
-    for (var text of this.findTexts()) {
+    for (const text of this.findTexts()) {
       yield *getTextLinks(text, true);
     }
   }
@@ -304,7 +304,7 @@ class Gatherer {
       return null;
     }
     try {
-      var url = makeURL(surl);
+      const url = makeURL(surl);
       if (!this.schemes.has(url.protocol)) {
         return null;
       }
@@ -324,13 +324,13 @@ class Gatherer {
   }
 
   makeUniqueItemsInternal(arr: any[], known: Map<string, any>, result: any[]) {
-    for (var e of arr) {
+    for (const e of arr) {
       if (!e || !e.url) {
         continue;
       }
-      var other = known.get(e.url);
+      const other = known.get(e.url);
       if (other) {
-        for (var p of this.transferable) {
+        for (const p of this.transferable) {
           if (!other[p] && e[p]) {
             other[p] = e[p];
           }
@@ -343,9 +343,9 @@ class Gatherer {
   }
 
   makeUniqueItems(...arrs: any[]) {
-    var known = new Map();
-    var result: any[] = [];
-    for (var arr of arrs) {
+    const known = new Map();
+    const result: any[] = [];
+    for (const arr of arrs) {
       this.makeUniqueItemsInternal(arr, known, result);
     }
     return result;
@@ -357,8 +357,8 @@ function gather(msg: any, sender: any, callback: Function) {
     if (!msg || msg.type !== "DTA:gather" || !callback) {
       return Promise.resolve(null);
     }
-    var gatherer = new Gatherer(msg);
-    var result = {
+    const gatherer = new Gatherer(msg);
+    const result = {
       baseURL: baseURL.href,
       links: gatherer.makeUniqueItems(
         Array.from(document.links).map(gatherer.collectLink),
