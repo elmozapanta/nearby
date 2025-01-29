@@ -4,9 +4,9 @@
 import { storage } from "./browser";
 
 function toJSON(overlay: any, object: any) {
-  const result: any = {};
-  for (const key of Object.keys(overlay)) {
-    const val: any = overlay[key];
+  var result: any = {};
+  for (var key of Object.keys(overlay)) {
+    var val: any = overlay[key];
     if (val !== object[val]) {
       result[key] = val;
     }
@@ -73,7 +73,7 @@ class Handler {
   }
 
   ownKeys(target: any) {
-    const result = Object.keys(target);
+    var result = Object.keys(target);
     result.push(...Object.keys(this.base));
     return Array.from(new Set(result));
   }
@@ -85,8 +85,8 @@ export function overlay(top: object) {
 
 export async function loadOverlay(
     storageKey: string, sync: boolean, defaults: object) {
-  const bottom = Object.freeze(defaults);
-  const top = await storage[sync ? "sync" : "local"].get(storageKey);
+  var bottom = Object.freeze(defaults);
+  var top = await storage[sync ? "sync" : "local"].get(storageKey);
   return overlay.call(bottom, top[storageKey] || {});
 }
 
