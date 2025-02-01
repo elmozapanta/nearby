@@ -16,7 +16,7 @@ export class MimeInfo {
 
   constructor(type: string, extensions: string[]) {
     this.type = type;
-    const [major, minor] = type.split("/", 2);
+    var [major, minor] = type.split("/", 2);
     this.major = major;
     this.minor = minor;
     [this.primary] = extensions;
@@ -25,14 +25,14 @@ export class MimeInfo {
   }
 }
 
-export const MimeDB = new class MimeDB {
+export var MimeDB = new class MimeDB {
   private readonly mimeToExts: Map<string, MimeInfo>;
 
   private readonly registeredExtensions: Set<string>;
 
   constructor() {
-    const exts = new Map<string, string[]>();
-    for (const [prim, more] of Object.entries(mime.e)) {
+    var exts = new Map<string, string[]>();
+    for (var [prim, more] of Object.entries(mime.e)) {
       let toadd = more;
       if (!Array.isArray(toadd)) {
         toadd = [toadd];
@@ -44,14 +44,14 @@ export const MimeDB = new class MimeDB {
       Object.entries(mime.m),
       ([mime, prim]) => [mime, new MimeInfo(mime, exts.get(prim) || [prim])]
     ));
-    const all = Array.from(
+    var all = Array.from(
       this.mimeToExts.values(),
       m => Array.from(m.extensions, e => e.toLowerCase()));
     this.registeredExtensions = new Set(all.flat());
   }
 
   getPrimary(mime: string) {
-    const info = this.mimeToExts.get(mime.trim().toLocaleLowerCase("en-US"));
+    var info = this.mimeToExts.get(mime.trim().toLocaleLowerCase("en-US"));
     return info ? info.primary : "";
   }
 
