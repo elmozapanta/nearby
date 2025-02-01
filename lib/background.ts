@@ -30,11 +30,11 @@ import { filterInSitu } from "./util";
 import { DB } from "./db";
 
 
-const menus = typeof (_menus) !== "undefined" && _menus || _cmenus;
+var menus = typeof (_menus) !== "undefined" && _menus || _cmenus;
 
-const GATHER = "/bundles/content-gather.js";
+var GATHER = "/bundles/content-gather.js";
 
-const CHROME_CONTEXTS = Object.freeze(new Set([
+var CHROME_CONTEXTS = Object.freeze(new Set([
   "all",
   "audio",
   "browser_action",
@@ -54,7 +54,7 @@ async function runContentJob(tab: Tab, file: string, msg: any) {
     if (tab && tab.incognito && msg) {
       msg.private = tab.incognito;
     }
-    const res = await tabs.executeScript(tab.id, {
+    var res = await tabs.executeScript(tab.id, {
       file,
       allFrames: true,
       runAt: "document_start"
@@ -62,9 +62,9 @@ async function runContentJob(tab: Tab, file: string, msg: any) {
     if (!msg) {
       return res;
     }
-    const promises = [];
-    const results: any[] = [];
-    for (const frame of await nav.getAllFrames({ tabId: tab.id })) {
+    var promises = [];
+    var results: any[] = [];
+    for (var frame of await nav.getAllFrames({ tabId: tab.id })) {
       promises.push(tabs.sendMessage(tab.id, msg, {
         frameId: frame.frameId}
       ).then(function(res: any) {
@@ -91,15 +91,15 @@ type SelectionOptions = {
 
 class Handler {
   async processResults(turbo = false, results: any[]) {
-    const links = this.makeUnique(results, "links");
-    const media = this.makeUnique(results, "media");
+    var links = this.makeUnique(results, "links");
+    var media = this.makeUnique(results, "media");
     await API[turbo ? "turbo" : "regular"](links, media);
   }
 
   makeUnique(results: any[], what: string) {
     return makeUniqueItems(
       results.filter(e => e[what]).map(e => {
-        const finisher = new Finisher(e);
+        var finisher = new Finisher(e);
         return filterInSitu(e[what].
           map((item: any) => finisher.finish(item)), e => !!e);
       }));
@@ -107,19 +107,19 @@ class Handler {
 
   async performSelection(options: SelectionOptions) {
     try {
-      const tabOptions: any = {
+      var tabOptions: any = {
         currentWindow: true,
         discarded: false,
       };
       if (!CHROME) {
         tabOptions.hidden = false;
       }
-      const selectedTabs = options.allTabs ?
+      var selectedTabs = options.allTabs ?
         await tabs.query(tabOptions) as any[] :
         [options.tab];
 
-      const textLinks = await Prefs.get("text-links", true);
-      const gatherOptions = {
+      var textLinks = await Prefs.get("text-links", true);
+      var gatherOptions = {
         type: "DTA:gather",
         selectionOnly: options.selectionOnly,
         textLinks,
@@ -127,7 +127,7 @@ class Handler {
         transferable: TRANSFERABLE_PROPERTIES,
       };
 
-      const results = await Promise.all(selectedTabs.
+      var results = await Promise.all(selectedTabs.
         map((tab: any) => runContentJob(tab, GATHER, gatherOptions)));
 
       await this.processResults(options.turbo, results.flat());
@@ -142,7 +142,7 @@ function getMajor(version?: string) {
   if (!version) {
     return "";
   }
-  const match = version.match(/^\d+\.\d+/);
+  var match = version.match(/^\d+\.\d+/);
   if (!match) {
     return "";
   }
@@ -150,9 +150,9 @@ function getMajor(version?: string) {
 }
 
 runtime.onInstalled.addListener(({reason, previousVersion}: OnInstalled) => {
-  const {version} = runtime.getManifest();
-  const major = getMajor(version);
-  const prevMajor = getMajor(previousVersion);
+  var {version} = runtime.getManifest();
+  var major = getMajor(version);
+  var prevMajor = getMajor(previousVersion);
   if (reason === "update" && major !== prevMajor) {
     tabs.create({
       url: `https://about.downthemall.org/changelog/?cur=${major}&prev=${prevMajor}`,
@@ -166,12 +166,12 @@ runtime.onInstalled.addListener(({reason, previousVersion}: OnInstalled) => {
 });
 
 locale.then(() => {
-  const menuHandler = new class Menus extends Handler {
+  var menuHandler = new class Menus extends Handler {
     constructor() {
       super();
       this.onClicked = this.onClicked.bind(this);
-      const alls = new Map<string, string[]>();
-      const menuCreate = (options: any) => {
+      var alls = new Map<string, string[]>();
+      var menuCreate = (options: any) => {
         if (CHROME) {
           delete options.icons;
           options.contexts = options.contexts.
@@ -298,7 +298,7 @@ locale.then(() => {
         },
         title: _("dta-turbo-all"),
       });
-      const sep2ctx = menus.ACTION_MENU_TOP_LEVEL_LIMIT === 6 ?
+      var sep2ctx = menus.ACTION_MENU_TOP_LEVEL_LIMIT === 6 ?
         ["all", "tools_menu"] :
         ["all", "browser_action", "tools_menu"];
       menuCreate({
@@ -344,9 +344,9 @@ locale.then(() => {
       });
       Object.freeze(alls);
 
-      const adjustMenus = (v: boolean) => {
-        for (const [id, contexts] of alls.entries()) {
-          const adjusted = v ?
+      var adjustMenus = (v: boolean) => {
+        for (var [id, contexts] of alls.entries()) {
+          var adjusted = v ?
             contexts.filter(e => e !== "all") :
             contexts;
           menus.update(id, {
@@ -369,14 +369,14 @@ locale.then(() => {
     }
 
     *makeSingleItemList(url: string, results: any[]) {
-      for (const result of results) {
-        const finisher = new Finisher(result);
-        for (const list of [result.links, result.media]) {
-          for (const e of list) {
+      for (var result of results) {
+        var finisher = new Finisher(result);
+        for (var list of [result.links, result.media]) {
+          for (var e of list) {
             if (e.url !== url) {
               continue;
             }
-            const finished = finisher.finish(e);
+            var finished = finisher.finish(e);
             if (!finished) {
               continue;
             }
@@ -390,19 +390,19 @@ locale.then(() => {
       if (!url) {
         return;
       }
-      const results = await runContentJob(
+      var results = await runContentJob(
         tab, "/bundles/content-gather.js", {
           type: "DTA:gather",
           selectionOnly: false,
           schemes: Array.from(ALLOWED_SCHEMES.values()),
           transferable: TRANSFERABLE_PROPERTIES,
         });
-      const found = Array.from(this.makeSingleItemList(url, results));
-      const unique = makeUniqueItems([found]);
+      var found = Array.from(this.makeSingleItemList(url, results));
+      var unique = makeUniqueItems([found]);
       if (!unique.length) {
         return;
       }
-      const [item] = unique;
+      var [item] = unique;
       API[turbo ? "singleTurbo" : "singleRegular"](item);
     }
 
@@ -410,20 +410,20 @@ locale.then(() => {
       if (!tab.id) {
         return;
       }
-      const {menuItemId} = info;
-      const {[`onClicked${menuItemId}`]: handler}: any = this;
+      var {menuItemId} = info;
+      var {[`onClicked${menuItemId}`]: handler}: any = this;
       if (!handler) {
         console.error("Invalid Handler for", menuItemId);
         return;
       }
-      const rv: Promise<void> | void = handler.call(this, info, tab);
+      var rv: Promise<void> | void = handler.call(this, info, tab);
       if (rv && rv.catch) {
         rv.catch(console.error);
       }
     }
 
     async emulate(action: string) {
-      const tab = await tabs.query({
+      var tab = await tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -626,7 +626,7 @@ locale.then(() => {
   Bus.on("open-prefs", () => openPrefs());
 
   (async function init() {
-    const urlBase = runtime.getURL("");
+    var urlBase = runtime.getURL("");
     try {
       history.onVisited.addListener(({url}: {url: string}) => {
         if (!url || !url.startsWith(urlBase)) {
@@ -634,8 +634,8 @@ locale.then(() => {
         }
         history.deleteUrl({url});
       });
-      const results: {url?: string}[] = await history.search({text: urlBase});
-      for (const {url} of results) {
+      var results: {url?: string}[] = await history.search({text: urlBase});
+      for (var {url} of results) {
         if (!url) {
           continue;
         }
@@ -648,8 +648,8 @@ locale.then(() => {
 
     if (!CHROME) {
       try {
-        const sessionRemover = async () => {
-          for (const s of await sessions.getRecentlyClosed()) {
+        var sessionRemover = async () => {
+          for (var s of await sessions.getRecentlyClosed()) {
             try {
               if (s.tab && s.tab.url && s.tab.sessionId) {
                 if (s.tab.url.startsWith(urlBase)) {
@@ -661,7 +661,7 @@ locale.then(() => {
               if (!s.window || !s.window.tabs || s.window.tabs.length > 1) {
                 continue;
               }
-              const [tab] = s.window.tabs;
+              var [tab] = s.window.tabs;
               if (tab.url.startsWith(urlBase) && s.window.sessionId) {
                 await sessions.forgetClosedWindow(s.window.sessionId);
               }
