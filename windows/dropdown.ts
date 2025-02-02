@@ -4,7 +4,7 @@
 import { EventEmitter } from "../lib/events";
 import { debounce } from "../lib/util";
 
-var TIMEOUT_INPUT = 100;
+const TIMEOUT_INPUT = 100;
 
 export class Dropdown extends EventEmitter {
   container: HTMLDivElement;
@@ -31,8 +31,8 @@ export class Dropdown extends EventEmitter {
     this.container.appendChild(this.input);
 
     this.select = document.createElement("select");
-    for (var option of options) {
-      var elem = document.createElement("option");
+    for (const option of options) {
+      const elem = document.createElement("option");
       elem.setAttribute("value", elem.textContent = option);
       this.select.appendChild(elem);
     }
