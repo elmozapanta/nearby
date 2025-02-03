@@ -4,7 +4,7 @@
 import { Prefs } from "../prefs";
 import { EventEmitter } from "../events";
 
-const DEFAULT = {
+var DEFAULT = {
   concurrent: -1,
 };
 
@@ -33,7 +33,7 @@ class Limit {
   }
 }
 
-export const Limits = new class Limits extends EventEmitter {
+export var Limits = new class Limits extends EventEmitter {
   public concurrent: number;
 
   private limits: Map<string, Limit>;
@@ -42,14 +42,14 @@ export const Limits = new class Limits extends EventEmitter {
     super();
     this.concurrent = 4;
     this.limits = new Map();
-    const onpref = this.onpref.bind(this);
+    var onpref = this.onpref.bind(this);
     Prefs.on("concurrent", onpref);
     Prefs.on("limits", onpref);
   }
 
   *[Symbol.iterator]() {
-    for (const [domain, v] of this.limits.entries()) {
-      const {concurrent} = v;
+    for (var [domain, v] of this.limits.entries()) {
+      var {concurrent} = v;
       yield {
         domain,
         concurrent,
@@ -72,7 +72,7 @@ export const Limits = new class Limits extends EventEmitter {
 
   async load() {
     this.concurrent = await Prefs.get("concurrent", this.concurrent);
-    const rawlimits = await Prefs.get("limits");
+    var rawlimits = await Prefs.get("limits");
     this.limits = new Map(rawlimits.map((e: any) => [e.domain, new Limit(e)]));
     this.load = (() => {}) as unknown as () => Promise<void>;
     this.emit("changed");
@@ -80,25 +80,25 @@ export const Limits = new class Limits extends EventEmitter {
 
   getConcurrentFor(domain: string) {
     let rv: number;
-    const dlimit = this.limits.get(domain);
+    var dlimit = this.limits.get(domain);
     if (dlimit) {
       rv = dlimit.concurrent;
     }
     else {
-      const limit = this.limits.get("*");
+      var limit = this.limits.get("*");
       rv = limit && limit.concurrent || -1;
     }
     return rv > 0 ? rv : this.concurrent;
   }
 
   async saveEntry(domain: string, descriptor: any) {
-    const limit = new Limit(Object.assign({}, descriptor, {domain}));
+    var limit = new Limit(Object.assign({}, descriptor, {domain}));
     this.limits.set(limit.domain, limit);
     await this.save();
   }
 
   async save() {
-    const limits = JSON.parse(JSON.stringify(this));
+    var limits = JSON.parse(JSON.stringify(this));
     await Prefs.set("limits", limits);
   }
 
