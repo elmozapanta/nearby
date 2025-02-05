@@ -10,12 +10,12 @@ import {APOOL} from "./animationpool";
 /* eslint-enable no-unused-vars */
 
 
-var HOVER_TIME = 1000;
+const HOVER_TIME = 1000;
 
 function makeStateChanger(ctx: Row, cls: string) {
-  var prop = Symbol(cls);
+  const prop = Symbol(cls);
   let state = false;
-  var rv = function(newState: boolean) {
+  const rv = function(newState: boolean) {
     state = newState;
     return ctx.changedState(prop, cls, state);
   };
@@ -25,7 +25,7 @@ function makeStateChanger(ctx: Row, cls: string) {
   return rv;
 }
 
-var CELLS = new WeakMap<HTMLElement, Row>();
+const CELLS = new WeakMap<HTMLElement, Row>();
 
 class Hover {
   private readonly row: Row;
@@ -129,7 +129,7 @@ export class Row {
     this.focused = makeStateChanger(this, "virtualtable-focused");
     this.elem = document.createElement("tr");
     this.addClasses();
-    for (var col of cols) {
+    for (const col of cols) {
       this.elem.appendChild(this.makeCellFor(col.id));
     }
     if (table.hover) {
@@ -140,7 +140,7 @@ export class Row {
 
   static getRowFor(cell: HTMLElement) {
     while (cell) {
-      var result = CELLS.get(cell);
+      const result = CELLS.get(cell);
       if (result) {
         return result;
       }
@@ -153,8 +153,8 @@ export class Row {
   }
 
   processCheckEvent(colid: number, evt: Event) {
-    var value = (evt.target as HTMLInputElement).checked;
-    var col = this.cols.get(colid) as CheckCell;
+    const value = (evt.target as HTMLInputElement).checked;
+    const col = this.cols.get(colid) as CheckCell;
     col.value = value;
     this.table.setCellCheck(this.rowid, colid, value);
   }
@@ -172,7 +172,7 @@ export class Row {
     if (this.focused.state) {
       addClass(this.elem, "row", "focused");
     }
-    var rcls = this.table.getRowClasses(this.rowid);
+    const rcls = this.table.getRowClasses(this.rowid);
     if (rcls) {
       this.elem.classList.add(...rcls);
     }
@@ -182,7 +182,7 @@ export class Row {
     if (cell.className) {
       cell.className = "";
     }
-    var ccls = this.table.getCellClasses(this.rowid, colid);
+    const ccls = this.table.getCellClasses(this.rowid, colid);
     if (ccls) {
       cell.classList.add(
         "virtualtable", "virtualtable-cell", `virtualtable-column-${colid}`,
@@ -195,25 +195,25 @@ export class Row {
   }
 
   makeCellFor(colid: number, type?: CellTypes) {
-    var {table} = this;
-    var resolvedType = type ||
+    const {table} = this;
+    const resolvedType = type ||
       table.getCellType(this.rowid, colid) ||
       CellTypes.TYPE_TEXT;
-    var cell = Cell.makeCell(resolvedType, this, colid);
+    const cell = Cell.makeCell(resolvedType, this, colid);
     this.cols.set(colid, cell);
     CELLS.set(cell.cell, this);
     return cell.cell;
   }
 
   invalidateCell(colid: number, cv?: Cell) {
-    var {table} = this;
-    var ctype = table.getCellType(this, colid);
+    const {table} = this;
+    const ctype = table.getCellType(this, colid);
     cv = cv || this.cols.get(colid);
     if (!cv) {
       return;
     }
     if (ctype !== cv.type) {
-      var newcell = this.makeCellFor(colid, ctype);
+      const newcell = this.makeCellFor(colid, ctype);
       this.elem.insertBefore(newcell, cv.cell);
       this.elem.removeChild(cv.cell);
       return;
@@ -223,8 +223,8 @@ export class Row {
 
   invalidate() {
     this.addClasses();
-    for (var c of Array.from(this.cols)) {
-      var [colid, cv] = c;
+    for (const c of Array.from(this.cols)) {
+      const [colid, cv] = c;
       this.invalidateCell(colid, cv);
     }
   }
@@ -238,12 +238,12 @@ export class Row {
         };
       }).reverse();
       cols.forEach(col => {
-        var w = col.width;
-        var c = this.cols.get(col.id);
+        const w = col.width;
+        const c = this.cols.get(col.id);
         if (!c) {
           return;
         }
-        var {cell} = c;
+        const {cell} = c;
         cell.style.width = w;
         if (w !== "auto") {
           cell.style.maxWidth = w;
