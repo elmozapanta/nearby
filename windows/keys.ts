@@ -6,7 +6,7 @@ import {EventEmitter} from "../lib/events";
 import { ContextMenu } from "./contextmenu";
 import { runtime } from "../lib/browser";
 
-export let Keys = new class extends EventEmitter {
+export const Keys = new class extends EventEmitter {
   private accel: string;
 
   public suppressed: boolean;
@@ -16,7 +16,7 @@ export let Keys = new class extends EventEmitter {
     addEventListener("keydown", this.keypressed.bind(this), true);
     this.accel = "CTRL";
     (async () => {
-      let info = await runtime.getPlatformInfo();
+      const info = await runtime.getPlatformInfo();
       if (info.os === "mac") {
         this.accel = "META";
       }
@@ -26,11 +26,11 @@ export let Keys = new class extends EventEmitter {
 
   adoptContext(menu: ContextMenu) {
     menu.on("clicked", (item: string) => {
-      let el = document.querySelector<HTMLElement>(`#${item}`);
+      const el = document.querySelector<HTMLElement>(`#${item}`);
       if (!el) {
         return;
       }
-      let {key} = el.dataset;
+      const {key} = el.dataset;
       if (!key) {
         return;
       }
@@ -45,9 +45,9 @@ export let Keys = new class extends EventEmitter {
   }
 
   adoptButtons(toolbar: HTMLElement) {
-    let query = toolbar.querySelectorAll<HTMLElement>(".button[data-key]");
-    for (let button of query) {
-      let {key} = button.dataset;
+    const query = toolbar.querySelectorAll<HTMLElement>(".button[data-key]");
+    for (const button of query) {
+      const {key} = button.dataset;
       if (!key) {
         continue;
       }
@@ -64,7 +64,7 @@ export let Keys = new class extends EventEmitter {
     if (this.suppressed) {
       return true;
     }
-    let cls = [];
+    const cls = [];
     try {
       if (event.ctrlKey) {
         cls.push("CTRL");
@@ -79,7 +79,7 @@ export let Keys = new class extends EventEmitter {
         cls.push("META");
       }
       cls.push(event.code);
-      let evt = cls.map(e => e === this.accel ? "ACCEL" : e).join("-");
+      const evt = cls.map(e => e === this.accel ? "ACCEL" : e).join("-");
       if (this.emit(evt, event)) {
         event.preventDefault();
         event.stopPropagation();
@@ -94,8 +94,8 @@ export let Keys = new class extends EventEmitter {
   }
 
   on(...args: any) {
-    let cb = args.pop();
-    for (let a of args) {
+    const cb = args.pop();
+    for (const a of args) {
       super.on(a, cb);
     }
   }
