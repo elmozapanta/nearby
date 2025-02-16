@@ -1,7 +1,7 @@
 "use strict";
 // License: MIT
 
-var DEFAULT_LIMIT = 3000;
+const DEFAULT_LIMIT = 3000;
 
 let memoes: any[] = [];
 
@@ -37,13 +37,13 @@ type MemoizeFun<T> = (...args: any[]) => T;
  */
 export function memoize<T>(
     func: MemoizeFun<T>, limit?: number, numArgs?: number): MemoizeFun<T> {
-  var climit = limit && limit > 0 ? limit : DEFAULT_LIMIT;
+  const climit = limit && limit > 0 ? limit : DEFAULT_LIMIT;
   numArgs = numArgs || func.length;
 
-  var cache = new Map();
+  const cache = new Map();
   memoes.push(cache);
-  var keylist: any[] = [];
-  var args: any[] = [];
+  const keylist: any[] = [];
+  const args: any[] = [];
   let key; let result;
 
   switch (numArgs) {
@@ -75,7 +75,7 @@ export function memoize<T>(
         return cache.get(key);
       }
 
-      var result = func(a, b);
+      const result = func(a, b);
       cache.set(key, result);
       if (keylist.push(key) > climit) {
         cache.delete(keylist.shift());
@@ -93,7 +93,7 @@ export function memoize<T>(
         return cache.get(key);
       }
 
-      var result = func(a, b, c);
+      const result = func(a, b, c);
       cache.set(key, result);
       if (keylist.push(key) > climit) {
         cache.delete(keylist.shift());
@@ -111,7 +111,7 @@ export function memoize<T>(
         return cache.get(key);
       }
 
-      var result = func(a, b, c, d);
+      const result = func(a, b, c, d);
       cache.set(key, result);
       if (keylist.push(key) > climit) {
         cache.delete(keylist.shift());
@@ -121,13 +121,13 @@ export function memoize<T>(
 
   default:
     return function(...args: any[]) {
-      var key = JSON.stringify(args);
+      const key = JSON.stringify(args);
 
       if (cache.has(key)) {
         return cache.get(key);
       }
 
-      var result = func(...args);
+      const result = func(...args);
       cache.set(key, result);
       if (keylist.push(key) > climit) {
         cache.delete(keylist.shift());
@@ -138,6 +138,6 @@ export function memoize<T>(
 }
 
 
-export var identity = memoize(function(o: any) {
+export const identity = memoize(function(o: any) {
   return o;
 });
