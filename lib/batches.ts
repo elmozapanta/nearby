@@ -1,7 +1,7 @@
 "use strict";
 // License: MIT
 
-const PROCESS = Symbol();
+var PROCESS = Symbol();
 
 interface Generator extends Iterable<string> {
   readonly preview: string;
@@ -30,7 +30,7 @@ function reallyParseInt(str: string) {
   if (!/^[+-]?[0-9]+$/.test(str)) {
     throw new Error("Not a number");
   }
-  const rv = parseInt(str, 10);
+  var rv = parseInt(str, 10);
   if (isNaN(rv) || rv !== (rv | 0)) {
     throw new Error("Not a number");
   }
@@ -51,17 +51,17 @@ class Numeral implements Generator {
   public readonly preview: string;
 
   constructor(str: string) {
-    const rawpieces = str.split(":").map(e => e.trim());
-    const pieces = rawpieces.map(e => reallyParseInt(e));
+    var rawpieces = str.split(":").map(e => e.trim());
+    var pieces = rawpieces.map(e => reallyParseInt(e));
     if (pieces.length < 2) {
       throw new Error("Invalid input");
     }
-    const [start, stop, step] = pieces;
+    var [start, stop, step] = pieces;
     if (step === 0) {
       throw new Error("Invalid step");
     }
     this.step = !step ? 1 : step;
-    const dir = this.step > 0;
+    var dir = this.step > 0;
     if (dir && start > stop) {
       throw new Error("Invalid sequence");
     }
@@ -78,11 +78,11 @@ class Numeral implements Generator {
   }
 
   *[Symbol.iterator]() {
-    const {digits, start, stop, step} = this;
-    const dir = step > 0;
+    var {digits, start, stop, step} = this;
+    var dir = step > 0;
     for (let i = start; (dir ? i <= stop : i >= stop); i += step) {
-      const rv = i.toString();
-      const len = digits - rv.length;
+      var rv = i.toString();
+      var len = digits - rv.length;
       if (len > 0) {
         yield "0".repeat(len) + rv;
       }
@@ -105,8 +105,8 @@ class Character implements Generator {
   public readonly preview: string;
 
   constructor(str: string) {
-    const rawpieces = str.split(":").map(e => e.trim());
-    const pieces = rawpieces.map((e, i) => {
+    var rawpieces = str.split(":").map(e => e.trim());
+    var pieces = rawpieces.map((e, i) => {
       if (i === 2) {
         return reallyParseInt(e);
       }
@@ -118,12 +118,12 @@ class Character implements Generator {
     if (pieces.length < 2) {
       throw new Error("Invalid input");
     }
-    const [start, stop, step] = pieces;
+    var [start, stop, step] = pieces;
     if (step === 0) {
       throw new Error("Invalid step");
     }
     this.step = !step ? 1 : step;
-    const dir = this.step > 0;
+    var dir = this.step > 0;
     if (dir && start > stop) {
       throw new Error("Invalid sequence");
     }
@@ -139,8 +139,8 @@ class Character implements Generator {
   }
 
   *[Symbol.iterator]() {
-    const {start, stop, step} = this;
-    const dir = step > 0;
+    var {start, stop, step} = this;
+    var dir = step > 0;
     for (let i = start; (dir ? i <= stop : i >= stop); i += step) {
       yield String.fromCharCode(i);
     }
@@ -165,11 +165,11 @@ export class BatchGenerator implements Generator {
         this.gens.push(new Literal(str.slice(0, i)));
         str = str.slice(i);
       }
-      const end = str.indexOf("]");
+      var end = str.indexOf("]");
       if (end <= 0) {
         throw new Error("Something went terribly wrong");
       }
-      const tok = str.slice(1, end);
+      var tok = str.slice(1, end);
       str = str.slice(end + 1);
       try {
         this.gens.push(new Numeral(tok));
@@ -190,8 +190,8 @@ export class BatchGenerator implements Generator {
 
     // Merge literls
     for (let i = this.gens.length; i > 1; --i) {
-      const sgen0 = this.gens[i - 1];
-      const sgen1 = this.gens[i];
+      var sgen0 = this.gens[i - 1];
+      var sgen1 = this.gens[i];
       if (sgen0 instanceof Literal && sgen1 instanceof Literal) {
         this.gens[i - 1] = new Literal(sgen0.str + sgen1.str);
         this.gens.splice(i, 1);
@@ -202,13 +202,13 @@ export class BatchGenerator implements Generator {
   }
 
   static *[PROCESS](gens: Generator[]): Iterable<string> {
-    const cur = gens.pop();
+    var cur = gens.pop();
     if (!cur) {
       yield "";
       return;
     }
-    for (const g of BatchGenerator[PROCESS](gens)) {
-      for (const tail of cur) {
+    for (var g of BatchGenerator[PROCESS](gens)) {
+      for (var tail of cur) {
         yield g + tail;
       }
     }
