@@ -15,18 +15,18 @@
   * it together in a reuseable, open source'd library.
   */
 
-var R_RFC6266 = /(?:^|;)\s*filename\*\s*=\s*([^";\s][^;\s]*|"(?:[^"\\]|\\"?)+"?)/i;
-var R_RFC5987 = /(?:^|;)\s*filename\s*=\s*([^";\s][^;\s]*|"(?:[^"\\]|\\"?)+"?)/i;
+const R_RFC6266 = /(?:^|;)\s*filename\*\s*=\s*([^";\s][^;\s]*|"(?:[^"\\]|\\"?)+"?)/i;
+const R_RFC5987 = /(?:^|;)\s*filename\s*=\s*([^";\s][^;\s]*|"(?:[^"\\]|\\"?)+"?)/i;
 
 function unquoteRFC2616(value: string) {
   if (!value.startsWith("\"")) {
     return value;
   }
 
-  var parts = value.slice(1).split("\\\"");
+  const parts = value.slice(1).split("\\\"");
   // Find the first unescaped " and terminate there.
   for (let i = 0; i < parts.length; ++i) {
-    var quotindex = parts[i].indexOf("\"");
+    const quotindex = parts[i].indexOf("\"");
     if (quotindex !== -1) {
       parts[i] = parts[i].slice(0, quotindex);
       // Truncate and stop the iteration.
@@ -56,9 +56,9 @@ export class CDHeaderParser {
 
     // filename*=ext-value ("ext-value" from RFC 5987, referenced by RFC 6266).
     {
-      var match = R_RFC6266.exec(header);
+      const match = R_RFC6266.exec(header);
       if (match) {
-        var [, tmp] = match;
+        const [, tmp] = match;
         let filename = unquoteRFC2616(tmp);
         filename = unescape(filename);
         filename = this.decodeRFC5897(filename);
@@ -71,19 +71,19 @@ export class CDHeaderParser {
     // filename*n*=part
     // filename*n=part
     {
-      var tmp = this.getParamRFC2231(header);
+      const tmp = this.getParamRFC2231(header);
       if (tmp) {
         // RFC 2047, section
-        var filename = this.decodeRFC2047(tmp);
+        const filename = this.decodeRFC2047(tmp);
         return this.maybeFixupEncoding(filename);
       }
     }
 
     // filename=value (RFC 5987, section 4.1).
     {
-      var match = R_RFC5987.exec(header);
+      const match = R_RFC5987.exec(header);
       if (match) {
-        var [, tmp] = match;
+        const [, tmp] = match;
         let filename = unquoteRFC2616(tmp);
         filename = this.decodeRFC2047(filename);
         return this.maybeFixupEncoding(filename);
@@ -96,7 +96,7 @@ export class CDHeaderParser {
     if (!encoding) {
       return value;
     }
-    var bytes = Array.from(value, c => c.charCodeAt(0));
+    const bytes = Array.from(value, c => c.charCodeAt(0));
     if (!bytes.every(code => code <= 0xff)) {
       return value;
     }
@@ -127,15 +127,15 @@ export class CDHeaderParser {
   }
 
   private getParamRFC2231(value: string) {
-    var matches: string[][] = [];
+    const matches: string[][] = [];
 
     // Iterate over all filename*n= and filename*n*= with n being an integer
     // of at least zero. Any non-zero number must not start with '0'.
     let match;
     this.R_MULTI.lastIndex = 0;
     while ((match = this.R_MULTI.exec(value)) !== null) {
-      var [, num, quot, part] = match;
-      var n = parseInt(num, 10);
+      const [, num, quot, part] = match;
+      const n = parseInt(num, 10);
       if (n in matches) {
         // Ignore anything after the invalid second filename*0.
         if (n === 0) {
@@ -146,13 +146,13 @@ export class CDHeaderParser {
       matches[n] = [quot, part];
     }
 
-    var parts: string[] = [];
+    const parts: string[] = [];
     for (let n = 0; n < matches.length; ++n) {
       if (!(n in matches)) {
         // Numbers must be consecutive. Truncate when there is a hole.
         break;
       }
-      var [quot, rawPart] = matches[n];
+      const [quot, rawPart] = matches[n];
       let part = unquoteRFC2616(rawPart);
       if (quot) {
         part = unescape(part);
@@ -215,15 +215,15 @@ export class CDHeaderParser {
 
   private decodeRFC5897(extValue: string) {
     // Decodes "ext-value" from RFC 5987.
-    var extEnd = extValue.indexOf("'");
+    const extEnd = extValue.indexOf("'");
     if (extEnd < 0) {
       // Some servers send "filename*=" without encoding'language' prefix,
       // e.g. in https://github.com/Rob--W/open-in-browser/issues/26
       // Let's accept the value like Firefox (57) (Chrome 62 rejects it).
       return extValue;
     }
-    var encoding = extValue.slice(0, extEnd);
-    var langvalue = extValue.slice(extEnd + 1);
+    const encoding = extValue.slice(0, extEnd);
+    const langvalue = extValue.slice(extEnd + 1);
     // Ignore language (RFC 5987 section 3.2.1, and RFC 6266 section 4.1 ).
     return this.maybeDecode(encoding, langvalue.replace(/^[^']*'/, ""));
   }
