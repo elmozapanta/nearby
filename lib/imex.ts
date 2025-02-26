@@ -6,19 +6,19 @@ import { getTextLinks } from "./textlinks";
 import { BaseItem } from "./item";
 import { ALLOWED_SCHEMES } from "./constants";
 
-export var NS_METALINK_RFC5854 = "urn:ietf:params:xml:ns:metalink";
-export var NS_DTA = "http://www.downthemall.net/properties#";
+export const NS_METALINK_RFC5854 = "urn:ietf:params:xml:ns:metalink";
+export const NS_DTA = "http://www.downthemall.net/properties#";
 
 function parseNum(
     file: Element,
     attr: string,
     defaultValue: number,
     ns = NS_METALINK_RFC5854) {
-  var val = file.getAttributeNS(ns, attr);
+  const val = file.getAttributeNS(ns, attr);
   if (!val) {
     return defaultValue + 1;
   }
-  var num = parseInt(val, 10);
+  const num = parseInt(val, 10);
   if (isFinite(num)) {
     return num;
   }
@@ -35,24 +35,24 @@ function urlToUsable(u: string) {
 }
 
 function importMeta4(data: string) {
-  var parser = new DOMParser();
-  var document = parser.parseFromString(data, "text/xml");
-  var {documentElement} = document;
-  var items: BaseItem[] = [];
+  const parser = new DOMParser();
+  const document = parser.parseFromString(data, "text/xml");
+  const {documentElement} = document;
+  const items: BaseItem[] = [];
   let batch = 0;
-  for (var file of documentElement.querySelectorAll("file")) {
+  for (const file of documentElement.querySelectorAll("file")) {
     try {
-      var url = Array.from(file.querySelectorAll("url")).map(u => {
+      const url = Array.from(file.querySelectorAll("url")).map(u => {
         try {
-          var {textContent} = u;
+          const {textContent} = u;
           if (!textContent) {
             return null;
           }
-          var url = new URL(textContent);
+          const url = new URL(textContent);
           if (!ALLOWED_SCHEMES.has(url.protocol)) {
             return null;
           }
-          var prio = parseNum(u, "priority", 0);
+          const prio = parseNum(u, "priority", 0);
           return {
             url,
             prio
@@ -74,32 +74,32 @@ function importMeta4(data: string) {
         continue;
       }
       batch = parseNum(file, "num", batch, NS_DTA);
-      var idx = parseNum(file, "idx", 0, NS_DTA);
-      var item: BaseItem = {
+      const idx = parseNum(file, "idx", 0, NS_DTA);
+      const item: BaseItem = {
         url: url.url.toString(),
         usable: urlToUsable(url.url.toString()),
         batch,
         idx
       };
-      var ref = file.getAttributeNS(NS_DTA, "referrer");
+      const ref = file.getAttributeNS(NS_DTA, "referrer");
       if (ref) {
         item.referrer = ref;
         item.usableReferrer = urlToUsable(ref);
       }
-      var mask = file.getAttributeNS(NS_DTA, "mask");
+      const mask = file.getAttributeNS(NS_DTA, "mask");
       if (mask) {
         item.mask = mask;
       }
-      var subfolder = file.getAttributeNS(NS_DTA, "subfolder");
+      const subfolder = file.getAttributeNS(NS_DTA, "subfolder");
       if (subfolder && subfolder !== "") {
         item.subfolder = subfolder;
       }
 
-      var description = file.querySelector("description");
+      const description = file.querySelector("description");
       if (description && description.textContent) {
         item.description = description.textContent.trim();
       }
-      var title = file.getElementsByTagNameNS(NS_DTA, "title");
+      const title = file.getElementsByTagNameNS(NS_DTA, "title");
       if (title && title[0] && title[0].textContent) {
         item.title = title[0].textContent;
       }
@@ -113,10 +113,10 @@ function importMeta4(data: string) {
 }
 
 function parseKV(current: BaseItem, line: string) {
-  var [k, v] = line.split("=", 2);
+  const [k, v] = line.split("=", 2);
   switch (k.toLocaleLowerCase("en-US").trim()) {
   case "referer": {
-    var refererUrls = getTextLinks(v);
+    const refererUrls = getTextLinks(v);
     if (refererUrls && refererUrls.length) {
       current.referrer = refererUrls.pop();
       current.usableReferrer = urlToUsable(current.referrer || "");
@@ -127,21 +127,21 @@ function parseKV(current: BaseItem, line: string) {
 }
 
 function importJSON(data: string) {
-  var items = JSON.parse(data);
+  const items = JSON.parse(data);
   if (!Array.isArray(items) || !items[0] || !items[0].url) {
     throw new Error("Invalid JSON provided");
   }
-  var rv = [];
-  for (var i of items) {
+  const rv = [];
+  for (const i of items) {
     try {
-      var url = new URL(i.url);
-      var item: BaseItem = {
+      const url = new URL(i.url);
+      const item: BaseItem = {
         url: url.toString(),
         usable: urlToUsable(url.toString()),
       };
 
       if (i.referer && i.referer !== "") {
-        var referrer = new URL(i.referer).toString();
+        const referrer = new URL(i.referer).toString();
         item.referrer = referrer;
         item.referrer = urlToUsable(referrer);
       }
@@ -194,15 +194,15 @@ export function importText(data: string) {
     console.log("probably not json");
   }
 
-  var splitter = /((?:.|\r)+)\n|(.+)$/g;
-  var spacer = /^\s+/;
+  const splitter = /((?:.|\r)+)\n|(.+)$/g;
+  const spacer = /^\s+/;
   let match;
   let current: BaseItem | undefined = undefined;
   let idx = 0;
-  var items = [];
+  const items = [];
   while ((match = splitter.exec(data)) !== null) {
     try {
-      var line = match[0].trimRight();
+      const line = match[0].trimRight();
       if (!line) {
         continue;
       }
@@ -213,7 +213,7 @@ export function importText(data: string) {
         parseKV(current, line);
         continue;
       }
-      var urls = getTextLinks(line);
+      const urls = getTextLinks(line);
       if (!urls || !urls.length) {
         continue;
       }
@@ -245,8 +245,8 @@ class TextExporter implements Exporter {
   }
 
   getText(items: BaseItem[]) {
-    var lines = [];
-    for (var item of items) {
+    const lines = [];
+    for (const item of items) {
       lines.push(item.url);
     }
     return lines.join("\n");
@@ -261,8 +261,8 @@ class Aria2Exporter implements Exporter {
   }
 
   getText(items: BaseItem[]) {
-    var lines = [];
-    for (var item of items) {
+    const lines = [];
+    for (const item of items) {
       lines.push(item.url);
       if (item.referrer) {
         lines.push(`  referer=${item.referrer}`);
@@ -280,17 +280,17 @@ class MetalinkExporter implements Exporter {
   }
 
   getText(items: BaseItem[]) {
-    var document = window.document.implementation.
+    const document = window.document.implementation.
       createDocument(NS_METALINK_RFC5854, "metalink", null);
-    var root = document.documentElement;
+    const root = document.documentElement;
     root.setAttributeNS(NS_DTA, "generator", "DownThemAll!");
     root.appendChild(document.createComment(
       "metalink as exported by DownThemAll!",
     ));
 
-    for (var item of items) {
-      var anyItem = item as any;
-      var f = document.createElementNS(NS_METALINK_RFC5854, "file");
+    for (const item of items) {
+      const anyItem = item as any;
+      const f = document.createElementNS(NS_METALINK_RFC5854, "file");
       f.setAttribute("name", anyItem.currentName);
       if (item.batch) {
         f.setAttributeNS(NS_DTA, "num", item.batch.toString());
@@ -309,23 +309,23 @@ class MetalinkExporter implements Exporter {
       }
 
       if (item.description) {
-        var n = document.createElementNS(NS_METALINK_RFC5854, "description");
+        const n = document.createElementNS(NS_METALINK_RFC5854, "description");
         n.textContent = item.description;
         f.appendChild(n);
       }
 
       if (item.title) {
-        var n = document.createElementNS(NS_DTA, "title");
+        const n = document.createElementNS(NS_DTA, "title");
         n.textContent = item.title;
         f.appendChild(n);
       }
 
-      var u = document.createElementNS(NS_METALINK_RFC5854, "url");
+      const u = document.createElementNS(NS_METALINK_RFC5854, "url");
       u.textContent = item.url;
       f.appendChild(u);
 
       if (anyItem.totalSize > 0) {
-        var s = document.createElementNS(NS_METALINK_RFC5854, "size");
+        const s = document.createElementNS(NS_METALINK_RFC5854, "size");
         s.textContent = anyItem.totalSize.toString();
         f.appendChild(s);
       }
@@ -345,9 +345,9 @@ class JSONExporter implements Exporter {
   }
 
   getText(items: BaseItem[]): string {
-    var rv = items.map(_item => {
-      var item = _item as any;
-      var serialized = {
+    const rv = items.map(_item => {
+      const item = _item as any;
+      const serialized = {
         url: item.url,
         name: item.currentName,
         subfolder: item.subfolder || "",
@@ -366,7 +366,7 @@ class JSONExporter implements Exporter {
   }
 }
 
-export var textExporter = new TextExporter();
-export var aria2Exporter = new Aria2Exporter();
-export var metalinkExporter = new MetalinkExporter();
-export var jsonExporter = new JSONExporter();
+export const textExporter = new TextExporter();
+export const aria2Exporter = new Aria2Exporter();
+export const metalinkExporter = new MetalinkExporter();
+export const jsonExporter = new JSONExporter();
