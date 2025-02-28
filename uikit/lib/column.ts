@@ -8,16 +8,16 @@ import {EventEmitter} from "./events";
 import {APOOL} from "./animationpool";
 import { ColumnConfig, ColumnConfigs } from "./config";
 
-const PIXLIT_WIDTH = 2;
-const MIN_COL_WIDTH = 16;
-const MOVE_DEBOUNCE = 40;
+var PIXLIT_WIDTH = 2;
+var MIN_COL_WIDTH = 16;
+var MOVE_DEBOUNCE = 40;
 
 function toPixel(v: string | null, def?: number) {
   def = def || 0;
   if (!v || v === "none" || v === "auto") {
     return def;
   }
-  const val = parseFloat(v.slice(0, -PIXLIT_WIDTH));
+  var val = parseFloat(v.slice(0, -PIXLIT_WIDTH));
   if (!isFinite(val) || val < def) {
     return def;
   }
@@ -62,10 +62,10 @@ export class Column extends EventEmitter {
     this.canHide = col.dataset.hideable !== "false";
 
     addClass(this.elem, "column");
-    const containerElem = this.containerElem = document.createElement("span");
+    var containerElem = this.containerElem = document.createElement("span");
     addClass(containerElem, "column-container");
     this.spanElem = document.createElement("span");
-    for (const e of Array.from(col.childNodes)) {
+    for (var e of Array.from(col.childNodes)) {
       this.spanElem.appendChild(e);
     }
     this.spanElem.setAttribute("title", this.spanElem.textContent || "");
@@ -104,7 +104,7 @@ export class Column extends EventEmitter {
   }
 
   get visible() {
-    const {display} = getComputedStyle(this.elem, null);
+    var {display} = getComputedStyle(this.elem, null);
     return display !== "none";
   }
 
@@ -114,23 +114,23 @@ export class Column extends EventEmitter {
   }
 
   get currentWidth() {
-    const style = getComputedStyle(this.elem, null);
+    var style = getComputedStyle(this.elem, null);
     if (!style) {
       return 0;
     }
-    const width = toPixel(style.width);
+    var width = toPixel(style.width);
     return width;
   }
 
   get clampedWidth() {
-    const {currentWidth} = this;
+    var {currentWidth} = this;
     return Math.max(
       this.minWidth, Math.min(currentWidth, this.maxWidth || currentWidth));
   }
 
 
   get outOfBounds() {
-    const {currentWidth} = this;
+    var {currentWidth} = this;
     return currentWidth - this.minWidth < -1 ||
       (this.maxWidth && currentWidth - this.maxWidth > 1);
   }
@@ -153,15 +153,15 @@ export class Column extends EventEmitter {
   }
 
   initWidths(config: ColumnConfig | null) {
-    const style = getComputedStyle(this.elem, null);
+    var style = getComputedStyle(this.elem, null);
     this.minWidth = toPixel(style.getPropertyValue("min-width"), MIN_COL_WIDTH);
     this.maxWidth = toPixel(style.getPropertyValue("max-width"), 0);
-    const width = (config && config.width) || this.baseWidth;
+    var width = (config && config.width) || this.baseWidth;
     this.setWidth(width);
   }
 
   get width() {
-    const style = getComputedStyle(this.elem, null);
+    var style = getComputedStyle(this.elem, null);
     return style.getPropertyValue("width");
   }
 
@@ -244,10 +244,10 @@ export class Columns extends EventEmitter {
     this.named = new Map<string, Column>();
     this.cols = Array.from(table.elem.querySelectorAll("th")).
       map((colEl: HTMLTableHeaderCellElement, colid: number) => {
-        const columnConfig = config && colEl.id in config ?
+        var columnConfig = config && colEl.id in config ?
           config[colEl.id] :
           null;
-        const col = new Column(this, colEl, colid, columnConfig);
+        var col = new Column(this, colEl, colid, columnConfig);
         col.on("gripmoved", this.gripmoved);
         this.named.set(colEl.id, col);
         return col;
@@ -261,8 +261,8 @@ export class Columns extends EventEmitter {
   }
 
   get config(): ColumnConfigs {
-    const rv: any = {};
-    for (const c of this.cols) {
+    var rv: any = {};
+    for (var c of this.cols) {
       rv[c.elem.id] = c.config;
     }
     return rv;
@@ -274,37 +274,37 @@ export class Columns extends EventEmitter {
     }
     this.visible = this.cols.filter(col => {
       col.elem.classList.remove("last");
-      const {visible} = col;
+      var {visible} = col;
       return visible;
     });
     this.visible[this.visible.length - 1].elem.classList.add("last");
   }
 
   gripmoved(col: Column, evt: MouseEvent) {
-    const cols = this.visible.filter(c => c.id > col.id);
-    const base = cols.map(c => c.currentWidth);
+    var cols = this.visible.filter(c => c.id > col.id);
+    var base = cols.map(c => c.currentWidth);
 
     // Calculate new width (contrained)
-    const curwidth = col.currentWidth;
-    const rect = col.elem.getBoundingClientRect();
+    var curwidth = col.currentWidth;
+    var rect = col.elem.getBoundingClientRect();
     let ewidth = Math.floor(evt.pageX - rect.left - (rect.width - curwidth));
     ewidth = Math.max(col.minWidth, ewidth);
     ewidth = Math.min(ewidth, col.maxWidth || ewidth);
-    const shrinking = ewidth < curwidth;
+    var shrinking = ewidth < curwidth;
     let allowances;
     if (shrinking) {
       // Shrinking
       allowances = cols.map(c => c.expandWidth);
-      const maxExpand = sum(allowances);
+      var maxExpand = sum(allowances);
       ewidth = Math.max(ewidth, curwidth - maxExpand);
     }
     else {
       // Expanding
       allowances = cols.map(c => c.shrinkWidth);
-      const maxShrink = sum(allowances);
+      var maxShrink = sum(allowances);
       ewidth = Math.min(ewidth, curwidth + maxShrink);
     }
-    const diff = Math.abs(ewidth - curwidth);
+    var diff = Math.abs(ewidth - curwidth);
     if (diff <= 1) {
       return;
     }
@@ -319,24 +319,24 @@ export class Columns extends EventEmitter {
   }
 
   reflow() {
-    const {clientWidth} = this.table.head;
-    const {clientWidth: currentWidth} = this.table.columns;
-    const {clientWidth: visibleWidth} = this.table.body;
-    const cols = this.visible;
-    const base = cols.map(c => c.currentWidth);
+    var {clientWidth} = this.table.head;
+    var {clientWidth: currentWidth} = this.table.columns;
+    var {clientWidth: visibleWidth} = this.table.body;
+    var cols = this.visible;
+    var base = cols.map(c => c.currentWidth);
     let widths;
     if (currentWidth > visibleWidth) {
       // Shrink
-      const shrinks = cols.map(c => c.shrinkWidth);
-      const diff = clientWidth - visibleWidth;
+      var shrinks = cols.map(c => c.shrinkWidth);
+      var diff = clientWidth - visibleWidth;
       widths = Columns.computeWidthDiffs(shrinks, diff);
     }
     else if (cols.some(c => c.outOfBounds) || currentWidth !== clientWidth) {
-      const expands = cols.map(c => c.expandWidth);
-      const stuffing = sum(
+      var expands = cols.map(c => c.expandWidth);
+      var stuffing = sum(
         cols.map((c, i) => c.elem.getBoundingClientRect().width - base[i]));
-      const clamped = sum(cols.map(c => c.clampedWidth));
-      const diff = clientWidth - stuffing - clamped;
+      var clamped = sum(cols.map(c => c.clampedWidth));
+      var diff = clientWidth - stuffing - clamped;
       widths = Columns.computeWidthDiffs(expands, diff).map(w => -w);
     }
     else {
@@ -346,13 +346,13 @@ export class Columns extends EventEmitter {
   }
 
   async applyNewWidths(cols: Column[], base: number[], widths: number[]) {
-    const len = widths.length;
+    var len = widths.length;
     widths.forEach((w, i) => {
-      const idx = len - i - 1;
+      var idx = len - i - 1;
       w = widths[idx];
-      const col = cols[idx];
-      const cw = base[idx];
-      const finalWidth = cw - w;
+      var col = cols[idx];
+      var cw = base[idx];
+      var finalWidth = cw - w;
       col.setWidth(finalWidth);
     });
     await APOOL.schedule(this.table, this.table.resized);
@@ -369,23 +369,23 @@ export class Columns extends EventEmitter {
   }
 
   static computeWidthDiffs(arr: number[], diff: number) {
-    const avg = diff / arr.length;
+    var avg = diff / arr.length;
     let rcount = 0;
     let rejected = 0;
-    for (const c of arr) {
-      const r = Math.max(avg - Math.min(c, avg), 0);
+    for (var c of arr) {
+      var r = Math.max(avg - Math.min(c, avg), 0);
       if (r) {
         rejected += r;
         rcount++;
       }
     }
-    const corravg = avg + rejected / (arr.length - rcount);
+    var corravg = avg + rejected / (arr.length - rcount);
     return arr.map(c => Math.min(c, corravg));
   }
 
   resized() {
     setTimeout(() => {
-      const cw = this.table.visibleWidth;
+      var cw = this.table.visibleWidth;
       if (this.lastWidth && this.lastWidth === cw) {
         return;
       }
