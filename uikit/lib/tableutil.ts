@@ -81,10 +81,10 @@ export class UpdateRecord {
     this.cols = cols;
     this.rows = [];
     this.children = new Set();
-    let maxLastIdx = Math.max(
+    const maxLastIdx = Math.max(
       this.rowCount - 1,
       Math.floor((this.totalHeight - this.height) / this.rowHeight));
-    let inset = this.scrollTop % this.rowHeight;
+    const inset = this.scrollTop % this.rowHeight;
     this.nitems = clampUInt(
       Math.ceil((this.height + inset) / this.rowHeight),
       this.rowCount);
