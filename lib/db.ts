@@ -9,8 +9,8 @@ import { RUNNING, QUEUED, RETRYING } from "./manager/state";
 import { storage } from "./browser";
 import { sort } from "./sorting";
 
-const VERSION = 1;
-const STORE = "queue";
+let VERSION = 1;
+let STORE = "queue";
 
 interface Database {
   init(): Promise<void>;
@@ -32,12 +32,12 @@ export class IDB implements Database {
       return;
     }
     await new Promise((resolve, reject) => {
-      const req = indexedDB.open("downloads", VERSION);
+      let req = indexedDB.open("downloads", VERSION);
       req.onupgradeneeded = evt => {
-        const db = req.result;
+        let db = req.result;
         switch (evt.oldVersion) {
         case 0: {
-          const queueStore = db.createObjectStore(STORE, {
+          let queueStore = db.createObjectStore(STORE, {
             keyPath: "dbId",
             autoIncrement: true
           });
@@ -59,13 +59,13 @@ export class IDB implements Database {
       reject(new Error("db closed"));
       return;
     }
-    const items: BaseItem[] = [];
-    const transaction = this.db.transaction(STORE, "readonly");
+    let items: BaseItem[] = [];
+    let transaction = this.db.transaction(STORE, "readonly");
     transaction.onerror = ex => reject(ex);
-    const store = transaction.objectStore(STORE);
-    const index = store.index("by_position");
+    let store = transaction.objectStore(STORE);
+    let index = store.index("by_position");
     index.openCursor().onsuccess = event => {
-      const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+      let cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
       if (!cursor) {
         resolve(items);
         return;
@@ -86,19 +86,19 @@ export class IDB implements Database {
       return;
     }
     try {
-      const transaction = this.db.transaction(STORE, "readwrite");
+      let transaction = this.db.transaction(STORE, "readwrite");
       transaction.onerror = ex => reject(ex);
       transaction.oncomplete = () => resolve();
-      const store = transaction.objectStore(STORE);
-      for (const item of items) {
+      let store = transaction.objectStore(STORE);
+      for (let item of items) {
         if (item.private) {
           continue;
         }
-        const json = item.toJSON();
+        let json = item.toJSON();
         if (item.state === RUNNING || item.state === RETRYING) {
           json.state = QUEUED;
         }
-        const req = store.put(json);
+        let req = store.put(json);
         if (!("dbId" in item) || item.dbId < 0) {
           req.onsuccess = () => item.dbId = req.result as number;
         }
@@ -120,11 +120,11 @@ export class IDB implements Database {
       return;
     }
     try {
-      const transaction = this.db.transaction(STORE, "readwrite");
+      let transaction = this.db.transaction(STORE, "readwrite");
       transaction.onerror = ex => reject(ex);
       transaction.oncomplete = () => resolve();
-      const store = transaction.objectStore(STORE);
-      for (const item of items) {
+      let store = transaction.objectStore(STORE);
+      for (let item of items) {
         if (item.private) {
           continue;
         }
@@ -153,7 +153,7 @@ class StorageDB implements Database {
   private counter = 1;
 
   async init(): Promise<void> {
-    const {db = null} = await storage.local.get("db");
+    let {db = null} = await storage.local.get("db");
     if (!db || !db.counter) {
       return;
     }
@@ -161,8 +161,8 @@ class StorageDB implements Database {
   }
 
   async saveItems(items: Download[]) {
-    const db: any = {items: []};
-    for (const item of items) {
+    let db: any = {items: []};
+    for (let item of items) {
       if (!item.dbId) {
         item.dbId = ++this.counter;
       }
@@ -173,8 +173,8 @@ class StorageDB implements Database {
   }
 
   async deleteItems(items: any[]): Promise<void> {
-    const gone = new Set(items.map(i => i.dbId));
-    const {db = null} = await storage.local.get("db");
+    let gone = new Set(items.map(i => i.dbId));
+    let {db = null} = await storage.local.get("db");
     if (!db) {
       return;
     }
@@ -183,7 +183,7 @@ class StorageDB implements Database {
   }
 
   async getAll() {
-    const {db = null} = await storage.local.get("db");
+    let {db = null} = await storage.local.get("db");
     if (!db || !Array.isArray(db.items)) {
       return [];
     }
@@ -201,7 +201,7 @@ class MemoryDB implements Database {
   }
 
   saveItems(items: Download[]) {
-    for (const item of items) {
+    for (let item of items) {
       if (item.private) {
         continue;
       }
@@ -214,7 +214,7 @@ class MemoryDB implements Database {
   }
 
   deleteItems(items: any[]) {
-    for (const item of items) {
+    for (let item of items) {
       if (!("dbId" in item)) {
         continue;
       }
@@ -228,7 +228,7 @@ class MemoryDB implements Database {
   }
 }
 
-export const DB = new class DBWrapper implements Database {
+export let DB = new class DBWrapper implements Database {
   async saveItems(items: Download[]): Promise<unknown> {
     await this.init();
     return this.db.saveItems(items);
