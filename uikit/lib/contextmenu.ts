@@ -5,12 +5,12 @@ import {EventEmitter} from "./events";
 import {Rect} from "./rect";
 import {debounce, IS_MAC} from "./util";
 
-var CLICK_DIFF = 16;
-var MENU_OPEN_BOUNCE = 500;
+const CLICK_DIFF = 16;
+const MENU_OPEN_BOUNCE = 500;
 
 let ids = 0;
 
-export var Keys = new Map([
+export const Keys = new Map([
   ["ACCEL", IS_MAC ? "⌘" : "Ctrl"],
   ["CTRL", "Ctrl"],
   ["ALT", IS_MAC ? "⌥" : "Alt"],
@@ -19,8 +19,8 @@ export var Keys = new Map([
 
 function toKeyTextMap(k: string) {
   k = k.trim();
-  var ku = k.toUpperCase();
-  var v = Keys.get(ku);
+  const ku = k.toUpperCase();
+  const v = Keys.get(ku);
   return v ? v : k.startsWith("Key") ? k.slice(3) : k;
 }
 
@@ -194,8 +194,8 @@ export class SubMenuItem extends MenuItemBase {
   }
 
   entered(event: MouseEvent) {
-    var {target} = event;
-    var htarget = target as HTMLElement;
+    const {target} = event;
+    const htarget = target as HTMLElement;
     if (htarget.classList.contains("context-menu")) {
       return;
     }
@@ -206,9 +206,9 @@ export class SubMenuItem extends MenuItemBase {
     if (!this.owner.showing) {
       return;
     }
-    var {itemRect} = this;
-    var {availableRect} = this.owner;
-    var {width, height} = this.menu.elem.getBoundingClientRect();
+    const {itemRect} = this;
+    const {availableRect} = this.owner;
+    const {width, height} = this.menu.elem.getBoundingClientRect();
     if (itemRect.right + width > availableRect.right) {
       itemRect.offset(-(itemRect.width + width - 2), 0);
     }
@@ -258,8 +258,8 @@ export class ContextMenu extends EventEmitter {
   }
 
   get availableRect() {
-    var {clientWidth: bodyWidth, clientHeight: bodyHeight} = document.body;
-    var availableRect = new Rect(0, 0, 0, 0, bodyWidth, bodyHeight);
+    const {clientWidth: bodyWidth, clientHeight: bodyHeight} = document.body;
+    const availableRect = new Rect(0, 0, 0, 0, bodyWidth, bodyHeight);
     return availableRect;
   }
 
@@ -267,11 +267,11 @@ export class ContextMenu extends EventEmitter {
     this.dismiss();
     this.emit("showing");
     this.materialize();
-    var {clientX, clientY} = event;
-    var {clientWidth, clientHeight} = this.elem;
-    var clientRect = new Rect(
+    const {clientX, clientY} = event;
+    const {clientWidth, clientHeight} = this.elem;
+    const clientRect = new Rect(
       clientX, clientY, 0, 0, clientWidth, clientHeight);
-    var {availableRect} = this;
+    const {availableRect} = this;
     if (clientRect.left < 0) {
       clientRect.move(0, clientRect.top);
     }
@@ -346,7 +346,7 @@ export class ContextMenu extends EventEmitter {
         this.dismiss();
       }
     }
-    var rv = super.emit(event, ...args);
+    const rv = super.emit(event, ...args);
     if (event === "clicked") {
       return super.emit(args[0], ...args.slice(1));
     }
@@ -372,7 +372,7 @@ export class ContextMenu extends EventEmitter {
       if (typeof before !== "string") {
         before = before.id;
       }
-      var ni = this.items.findIndex(i => i.id === before);
+      const ni = this.items.findIndex(i => i.id === before);
       if (ni >= 0) {
         idx = ni;
       }
@@ -387,8 +387,8 @@ export class ContextMenu extends EventEmitter {
   }
 
   remove(item: MenuItemBase | string) {
-    var id = typeof item === "string" ? item : item.id;
-    var idx = this.items.findIndex(i => i.id === id);
+    const id = typeof item === "string" ? item : item.id;
+    const idx = this.items.findIndex(i => i.id === id);
     if (idx >= 0) {
       this.items.splice(idx, 1);
       this.itemMap.delete(id);
@@ -397,7 +397,7 @@ export class ContextMenu extends EventEmitter {
 
   constructFromTemplate(el: HTMLElement | string) {
     if (typeof el === "string") {
-      var sel = document.querySelector(el) as HTMLElement;
+      const sel = document.querySelector(el) as HTMLElement;
       if (!sel) {
         throw new Error("Invalid selector");
       }
@@ -414,13 +414,13 @@ export class ContextMenu extends EventEmitter {
       this.elem.classList.add("context-menu");
     }
     this.id = el.id || this.id;
-    for (var child of el.children) {
-      var text = [];
+    for (const child of el.children) {
+      const text = [];
       let sub = null;
-      for (var sc of child.childNodes) {
+      for (const sc of child.childNodes) {
         switch (sc.nodeType) {
         case Node.TEXT_NODE: {
-          var {textContent} = sc;
+          const {textContent} = sc;
           text.push(textContent && textContent.trim() || "");
           break;
         }
@@ -438,9 +438,9 @@ export class ContextMenu extends EventEmitter {
           throw new Error(`Invalid node: ${(sc as HTMLElement).localName}`);
         }
       }
-      var joined = text.join(" ").trim();
+      const joined = text.join(" ").trim();
       let item = null;
-      var ce = child as HTMLElement;
+      const ce = child as HTMLElement;
       if (joined === "-") {
         item = new MenuSeparatorItem(this, child.id);
       }
@@ -459,7 +459,7 @@ export class ContextMenu extends EventEmitter {
   materialize() {
     this.elem.id = this.id;
     this.elem.textContent = "";
-    for (var item of this.items) {
+    for (const item of this.items) {
       item.materialize();
       this.elem.appendChild(item.elem);
     }
