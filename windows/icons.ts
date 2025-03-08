@@ -17,7 +17,7 @@ export class Icons extends Map {
     if (url.startsWith("icon-")) {
       return url;
     }
-    const cls = super.get(url);
+    let cls = super.get(url);
     if (!cls) {
       cls = `iconcache-${++this.running}`;
       var rule = `.${cls} { background-image: url(${url}); }`;
