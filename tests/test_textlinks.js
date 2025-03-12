@@ -3,7 +3,7 @@
 "use strict";
 /*! License: CC0 1.0 */
 
-let {getTextLinks, FakeLink} = require("../lib/textlinks");
+const {getTextLinks, FakeLink} = require("../lib/textlinks");
 
 // Adopted from dta-legacy tests
 
@@ -15,7 +15,7 @@ function equal(a, b) {
   expect(a).to.equal(b);
 }
 
-let strictEqual = equal;
+const strictEqual = equal;
 
 describe("TextLinks", function() {
   it("regular", function() {
@@ -83,7 +83,7 @@ describe("TextLinks", function() {
   });
 
   it("FakeLink", function() {
-    let l = new FakeLink("http://downthemall.net/");
+    const l = new FakeLink("http://downthemall.net/");
     equal(l.href, "http://downthemall.net/", "href");
     equal(l.toString(), "http://downthemall.net/", "toString");
     strictEqual(l.title, undefined, "title1");
