@@ -1,7 +1,7 @@
 "use strict";
 // License: MIT
 
-let NUM_VALUES = 20;
+const NUM_VALUES = 20;
 
 class Sequence {
   protected readonly values: Uint32Array;
@@ -62,17 +62,17 @@ export class Stats extends Sequence {
   }
 
   add(value: number) {
-    let now = Date.now();
+    const now = Date.now();
     if (this.lastTime) {
-      let diff = now - this.lastTime;
+      const diff = now - this.lastTime;
       value = (value / diff * 1000) | 0;
     }
     this.lastTime = now;
 
     super.add(value);
 
-    let valid = this.validValues;
-    let cavg = valid.reduce((p, c) => p + c, 0) / valid.length;
+    const valid = this.validValues;
+    const cavg = valid.reduce((p, c) => p + c, 0) / valid.length;
     if (this.avg < 1000) {
       this.avg = cavg;
     }
