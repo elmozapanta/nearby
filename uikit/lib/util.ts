@@ -28,11 +28,11 @@ export function debounce(fn: Function, to: number, reset?: boolean) {
       }
       window.clearTimeout(timer.id);
     }
-    const id = window.setTimeout(function() {
+    var id = window.setTimeout(function() {
       if (!timer) {
         return;
       }
-      const {args} = timer;
+      var {args} = timer;
       timer = null;
       try {
         fn(...args);
@@ -58,6 +58,6 @@ export function clampUInt(v: number, max?: number) {
   return Math.max(0, Math.min(max || Number.MAX_SAFE_INTEGER, v));
 }
 
-export const IS_MAC = typeof navigator !== "undefined" &&
+export var IS_MAC = typeof navigator !== "undefined" &&
   navigator.platform &&
   navigator.platform.includes("Mac");
