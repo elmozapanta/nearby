@@ -7,7 +7,7 @@ import english from "../_locales/en/messages.json";
 import { sorted, naturalCaseCompare } from "./sorting";
 import lf from "localforage";
 
-export const ALL_LANGS = Object.freeze(new Map<string, string>(
+export var ALL_LANGS = Object.freeze(new Map<string, string>(
   sorted(Object.entries(langs), e => {
     return [e[1], e[0]];
   }, naturalCaseCompare)));
@@ -20,11 +20,11 @@ export function getCurrentLanguage() {
 declare let browser: any;
 declare let chrome: any;
 
-const CUSTOM_KEY = "_custom_locale";
+var CUSTOM_KEY = "_custom_locale";
 
-const normalizer = /[^A-Za-z0-9_]/g;
+var normalizer = /[^A-Za-z0-9_]/g;
 
-const DEF_LANGS = new Map<string, string>([["zh", "zh_CN"], ["pt", "pt_PT"]]);
+var DEF_LANGS = new Map<string, string>([["zh", "zh_CN"], ["pt", "pt_PT"]]);
 
 interface JSONEntry {
   message: string;
@@ -41,8 +41,8 @@ class Entry {
     let hit = false;
     this.message = entry.message.replace(/\$[A-Z0-9]+\$/g, (r: string) => {
       hit = true;
-      const id = r.slice(1, -1).toLocaleLowerCase("en-US");
-      const placeholder = entry.placeholders[id];
+      var id = r.slice(1, -1).toLocaleLowerCase("en-US");
+      var placeholder = entry.placeholders[id];
       if (!placeholder || !placeholder.content) {
         throw new Error(`Invalid placeholder: ${id}`);
       }
@@ -55,7 +55,7 @@ class Entry {
 
   localize(args: any[]) {
     return this.message.replace(/\$\d+\$/g, (r: string) => {
-      const idx = parseInt(r.slice(1, -1), 10) - 1;
+      var idx = parseInt(r.slice(1, -1), 10) - 1;
       return args[idx] || "";
     });
   }
@@ -66,8 +66,8 @@ class Localization {
 
   constructor(baseLanguage: any, ...overlayLanguages: any) {
     this.strings = new Map();
-    const mapLanguage = (lang: any) => {
-      for (const [id, entry] of Object.entries<JSONEntry>(lang)) {
+    var mapLanguage = (lang: any) => {
+      for (var [id, entry] of Object.entries<JSONEntry>(lang)) {
         if (!id || !entry || !entry.message) {
           continue;
         }
@@ -89,7 +89,7 @@ class Localization {
   }
 
   localize(id: string, ...args: any[]) {
-    const entry = this.strings.get(id.replace(normalizer, "_"));
+    var entry = this.strings.get(id.replace(normalizer, "_"));
     if (!entry) {
       return "";
     }
@@ -104,7 +104,7 @@ class Localization {
 }
 
 function checkBrowser() {
-  // eslint-disable-next-line @typescript-eslint/no-const-requires
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   if (typeof browser !== "undefined" && browser.i18n) {
     return;
   }
@@ -120,8 +120,8 @@ async function fetchLanguage(code: string) {
       return english;
     }
 
-    const resp = await fetch(`/_locales/${code}/messages.json`);
-    const json = await resp.json();
+    var resp = await fetch(`/_locales/${code}/messages.json`);
+    var json = await resp.json();
     if (!json || !json.CRASH || !json.CRASH.message) {
       throw new Error(`Fetch returned invalid locale for: ${code}`);
     }
@@ -138,9 +138,9 @@ async function loadRawLocales() {
   // en is the base locale, always to be loaded
   // The loader will override string from it with more specific string
   // from other locales
-  const langs = new Set<string>(["en"]);
+  var langs = new Set<string>(["en"]);
 
-  const uiLang: string = (typeof browser !== "undefined" ? browser : chrome).
+  var uiLang: string = (typeof browser !== "undefined" ? browser : chrome).
     i18n.getUILanguage();
 
   // Chrome will only look for underscore versions of locale codes,
@@ -163,15 +163,15 @@ async function loadRawLocales() {
     langs.add(CURRENT);
   }
 
-  const valid = Array.from(langs).filter(e => ALL_LANGS.has(e));
+  var valid = Array.from(langs).filter(e => ALL_LANGS.has(e));
   if (valid.length === 1) {
-    for (const [def, mapped] of DEF_LANGS.entries()) {
+    for (var [def, mapped] of DEF_LANGS.entries()) {
       if (langs.has(def)) {
         valid.push(mapped);
       }
     }
   }
-  const fetched = await Promise.all(Array.from(valid, fetchLanguage));
+  var fetched = await Promise.all(Array.from(valid, fetchLanguage));
   return fetched.filter(e => !!e);
 }
 
@@ -195,12 +195,12 @@ async function load(): Promise<Localization> {
       }
       CURRENT = currentLang;
       // en is the base locale
-      const valid = await loadRawLocales();
+      var valid = await loadRawLocales();
       if (!valid.length) {
         throw new Error("Could not load ANY of these locales");
       }
 
-      const custom = await lf.getItem<string>(CUSTOM_KEY);
+      var custom = await lf.getItem<string>(CUSTOM_KEY);
       if (custom) {
         try {
           valid.push(JSON.parse(custom));
@@ -211,8 +211,8 @@ async function load(): Promise<Localization> {
         }
       }
 
-      const base = valid.shift();
-      const rv = new Localization(base, ...valid);
+      var base = valid.shift();
+      var rv = new Localization(base, ...valid);
       return rv;
     }
     catch (ex) {
@@ -228,7 +228,7 @@ async function load(): Promise<Localization> {
 
 type MemoLocalize = (id: string, ...args: any[]) => string;
 
-export const locale = load();
+export var locale = load();
 let loc: Localization | null;
 let memoLocalize: MemoLocalize | null = null;
 locale.then(l => {
@@ -254,12 +254,12 @@ export function _(id: string, ...subst: any[]) {
 }
 
 function localize_<T extends HTMLElement | DocumentFragment>(elem: T): T {
-  for (const tmpl of elem.querySelectorAll<HTMLTemplateElement>("template")) {
+  for (var tmpl of elem.querySelectorAll<HTMLTemplateElement>("template")) {
     localize_(tmpl.content);
   }
 
-  for (const el of elem.querySelectorAll<HTMLElement>("*[data-i18n]")) {
-    const {i18n: i} = el.dataset;
+  for (var el of elem.querySelectorAll<HTMLElement>("*[data-i18n]")) {
+    var {i18n: i} = el.dataset;
     if (!i) {
       continue;
     }
@@ -268,7 +268,7 @@ function localize_<T extends HTMLElement | DocumentFragment>(elem: T): T {
       if (!piece) {
         continue;
       }
-      const idx = piece.indexOf("=");
+      var idx = piece.indexOf("=");
       if (idx < 0) {
         let childElements;
         if (el.childElementCount) {
@@ -280,12 +280,12 @@ function localize_<T extends HTMLElement | DocumentFragment>(elem: T): T {
         }
         continue;
       }
-      const attr = piece.substring(0, idx).trim();
+      var attr = piece.substring(0, idx).trim();
       piece = piece.slice(idx + 1).trim();
       el.setAttribute(attr, _(piece));
     }
   }
-  for (const el of document.querySelectorAll("*[data-l18n]")) {
+  for (var el of document.querySelectorAll("*[data-l18n]")) {
     console.error("wrong!", el);
   }
   return elem as T;
