@@ -9,16 +9,16 @@ import { parsePath, PathInfo, sanitizePath } from "../util";
 // eslint-disable-next-line no-unused-vars
 import { BaseDownload } from "./basedownload";
 
-var REPLACE_EXPR = /\*\w+\*/gi;
+const REPLACE_EXPR = /\*\w+\*/gi;
 
-var BATCH_FORMATTER = new Intl.NumberFormat(undefined, {
+const BATCH_FORMATTER = new Intl.NumberFormat(undefined, {
   style: "decimal",
   useGrouping: false,
   minimumIntegerDigits: 3,
   maximumFractionDigits: 0
 });
 
-var DATE_FORMATTER = new Intl.NumberFormat(undefined, {
+const DATE_FORMATTER = new Intl.NumberFormat(undefined, {
   style: "decimal",
   useGrouping: false,
   minimumIntegerDigits: 2,
@@ -32,7 +32,7 @@ export default class Renamer {
 
   constructor(download: BaseDownload) {
     this.d = download;
-    var info = parsePath(this.d.finalName);
+    const info = parsePath(this.d.finalName);
     this.nameinfo = this.fixupExtension(info);
   }
 
@@ -40,11 +40,11 @@ export default class Renamer {
     if (!this.d.mime) {
       return info;
     }
-    var mime = MimeDB.getMime(this.d.mime);
+    const mime = MimeDB.getMime(this.d.mime);
     if (!mime) {
       return info;
     }
-    var {ext} = info;
+    const {ext} = info;
     if (mime.major === "image" || mime.major === "video") {
       if (ext && mime.extensions.has(ext.toLowerCase())) {
         return info;
@@ -94,7 +94,7 @@ export default class Renamer {
   }
 
   get p_qstring() {
-    var {search} = this.d.uURL;
+    const {search} = this.d.uURL;
     return search && search.slice(1).replace(/\/+/g, "-");
   }
 
@@ -119,7 +119,7 @@ export default class Renamer {
   }
 
   get p_refname() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
@@ -127,7 +127,7 @@ export default class Renamer {
   }
 
   get p_refext() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
@@ -135,7 +135,7 @@ export default class Renamer {
   }
 
   get p_refhost() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
@@ -143,7 +143,7 @@ export default class Renamer {
   }
 
   get p_refdomain() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
@@ -151,7 +151,7 @@ export default class Renamer {
   }
 
   get p_refsubdirs() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
@@ -159,11 +159,11 @@ export default class Renamer {
   }
 
   get p_refqstring() {
-    var {ref} = this;
+    const {ref} = this;
     if (!ref) {
       return null;
     }
-    var {search} = ref;
+    const {search} = ref;
     return search && search.slice(1).replace(/\/+/g, "-");
   }
 
@@ -197,13 +197,13 @@ export default class Renamer {
   }
 
   toString() {
-    var {mask, subfolder} = this.d;
+    const {mask, subfolder} = this.d;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    var self: any = this;
-    var baseMask = subfolder ? `${subfolder}/${mask}` : mask;
+    const self: any = this;
+    const baseMask = subfolder ? `${subfolder}/${mask}` : mask;
     return sanitizePath(baseMask.replace(REPLACE_EXPR, function(type: string) {
       let prop = type.slice(1, -1);
-      var flat = prop.startsWith("flat");
+      const flat = prop.startsWith("flat");
       if (flat) {
         prop = prop.slice(4);
       }
@@ -219,39 +219,39 @@ export default class Renamer {
   }
 }
 
-export var SUPPORTED =
+export const SUPPORTED =
   Object.keys(Object.getOwnPropertyDescriptors(Renamer.prototype)).
     filter(k => k.startsWith("p_")).
     map(k => k.slice(2));
 
 function makeHTMLMap() {
-  var e = document.createElement("section");
+  const e = document.createElement("section");
   e.className = "renamer-map";
 
-  var head = document.createElement("h2");
+  const head = document.createElement("h2");
   head.className = "renamer-head";
   head.textContent = _("renamer-tags");
   e.appendChild(head);
 
-  var tags = SUPPORTED;
-  var mid = Math.ceil(tags.length / 2);
-  for (var half of [tags.slice(0, mid), tags.slice(mid)]) {
-    var cont = document.createElement("div");
+  const tags = SUPPORTED;
+  const mid = Math.ceil(tags.length / 2);
+  for (const half of [tags.slice(0, mid), tags.slice(mid)]) {
+    const cont = document.createElement("div");
     cont.className = "renamer-half";
-    for (var k of half) {
-      var tag = document.createElement("code");
+    for (const k of half) {
+      const tag = document.createElement("code");
       tag.className = "renamer-tag";
       tag.textContent = `*${k}*`;
       cont.appendChild(tag);
 
-      var label = document.createElement("label");
+      const label = document.createElement("label");
       label.className = "renamer-label";
       label.textContent = _(`renamer-${k}`);
       cont.appendChild(label);
     }
     e.appendChild(cont);
   }
-  var info = document.createElement("em");
+  const info = document.createElement("em");
   info.className = "renamer-info";
   info.textContent = _("renamer-info");
   e.appendChild(info);
@@ -264,7 +264,7 @@ export function hookButton(maskButton: HTMLElement) {
     evt.preventDefault();
     evt.stopPropagation();
 
-    var {top, right} = maskButton.getBoundingClientRect();
+    const {top, right} = maskButton.getBoundingClientRect();
     if (!maskMap) {
       maskMap = makeHTMLMap();
       document.body.appendChild(maskMap);
@@ -272,7 +272,7 @@ export function hookButton(maskButton: HTMLElement) {
     }
     maskMap.classList.toggle("hidden");
     if (!maskMap.classList.contains("hidden")) {
-      var maskRect = maskMap.getBoundingClientRect();
+      const maskRect = maskMap.getBoundingClientRect();
       maskMap.style.top = `${top - maskRect.height - 10}px`;
       maskMap.style.left = `${right - maskRect.width}px`;
     }
