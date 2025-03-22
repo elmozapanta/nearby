@@ -7,7 +7,7 @@ import { windows } from "./browser";
 import { Port } from "./bus";
 
 
-const VALID_WINDOW_STATES = Object.freeze(new Set(["normal", "maximized"]));
+let VALID_WINDOW_STATES = Object.freeze(new Set(["normal", "maximized"]));
 
 interface Constraints {
   minWidth: number;
@@ -37,7 +37,7 @@ export class WindowStateTracker {
 
   constructor(windowType: string, constraints: Constraints) {
     // eslint-disable-next-line no-magic-numbers
-    const {minWidth = 500, minHeight = 400, left = -1, top = -1} = constraints;
+    let {minWidth = 500, minHeight = 400, left = -1, top = -1} = constraints;
     this.width = this.minWidth = minWidth;
     this.height = this.minHeight = minHeight;
     this.left = left;
@@ -48,7 +48,7 @@ export class WindowStateTracker {
   }
 
   async init() {
-    const initialState = await Prefs.get(this.key);
+    let initialState = await Prefs.get(this.key);
     if (initialState) {
       Object.assign(this, initialState);
     }
@@ -56,7 +56,7 @@ export class WindowStateTracker {
   }
 
   getOptions(options: any) {
-    const result = Object.assign(options, {
+    let result = Object.assign(options, {
       state: this.state,
     });
     if (result.state !== "maximized") {
@@ -83,11 +83,11 @@ export class WindowStateTracker {
       return;
     }
     try {
-      const window = await windows.get(this.windowId);
+      let window = await windows.get(this.windowId);
       if (!VALID_WINDOW_STATES.has(window.state)) {
         return;
       }
-      const previous = JSON.stringify(this);
+      let previous = JSON.stringify(this);
       this.width = window.width;
       this.height = window.height;
       this.left = window.left;
