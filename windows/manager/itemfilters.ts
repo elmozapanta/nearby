@@ -21,7 +21,7 @@ import {formatSize} from "../../lib/formatters";
 import {_} from "../../lib/i18n";
 import {$} from "../winutil";
 
-var TIMEOUT_SEARCH = 750;
+const TIMEOUT_SEARCH = 750;
 
 class ItemFilter {
   public readonly id: string;
@@ -75,7 +75,7 @@ export class TextFilter extends ItemFilter {
 
   update() {
     this.timer = null;
-    var {value} = this.box;
+    const {value} = this.box;
     if (this.current === value) {
       return;
     }
@@ -94,7 +94,7 @@ export class TextFilter extends ItemFilter {
   }
 
   allow(item: DownloadItem) {
-    var {expr} = this;
+    const {expr} = this;
     return expr.test(item.currentName) ||
       expr.test(item.usable) ||
       expr.test(item.description);
@@ -119,7 +119,7 @@ export class MenuFilter extends ItemFilter {
   constructor(id: string) {
     super(id);
     this.items = new Map();
-    var tmpl = $<HTMLTemplateElement>("#menufilter-template").
+    const tmpl = $<HTMLTemplateElement>("#menufilter-template").
       content.cloneNode(true);
     this.menu = new ContextMenu(
       (tmpl as HTMLElement).firstElementChild);
@@ -136,7 +136,7 @@ export class MenuFilter extends ItemFilter {
       forEach(e => this.menu.remove(e));
     this.items.clear();
     await this.populate();
-    for (var {item} of Array.from(this.items.values()).reverse()) {
+    for (const {item} of Array.from(this.items.values()).reverse()) {
       this.menu.prepend(item);
     }
     this.menu.show(evt);
@@ -147,13 +147,13 @@ export class MenuFilter extends ItemFilter {
   }
 
   addItem(text: string, callback?: Function, checked?: boolean) {
-    var id = `ctx-menufilter-item-${this.items.size.toString()}`;
+    const id = `ctx-menufilter-item-${this.items.size.toString()}`;
     if (text === "-") {
-      var item = new MenuSeparatorItem(this.menu, id);
+      const item = new MenuSeparatorItem(this.menu, id);
       this.items.set(id, {item, callback});
       return;
     }
-    var item = new MenuItem(this.menu, id, text, {
+    const item = new MenuItem(this.menu, id, text, {
       autoHide: "false",
     });
     item.iconElem.textContent = checked ? "✓" : "";
@@ -161,7 +161,7 @@ export class MenuFilter extends ItemFilter {
   }
 
   invert() {
-    for (var {item, callback} of this.items.values()) {
+    for (const {item, callback} of this.items.values()) {
       if (!callback) {
         continue;
       }
@@ -174,7 +174,7 @@ export class MenuFilter extends ItemFilter {
   }
 
   clear() {
-    for (var {item} of this.items.values()) {
+    for (const {item} of this.items.values()) {
       if (!item.iconElem) {
         continue;
       }
@@ -190,7 +190,7 @@ export class MenuFilter extends ItemFilter {
   }
 
   onclicked(evt: string) {
-    var {item = null, callback = null} = this.items.get(evt) || {};
+    const {item = null, callback = null} = this.items.get(evt) || {};
     if (!item) {
       return;
     }
@@ -276,7 +276,7 @@ export class StateMenuFilter extends FixedMenuFilter {
   constructor(
       collection: FilteredCollection,
       StateTexts: Readonly<Map<number, string>>) {
-    var items = Array.from(StateTexts.entries()).map(([state, text]) => {
+    const items = Array.from(StateTexts.entries()).map(([state, text]) => {
       return {
         state,
         text,
@@ -293,16 +293,16 @@ export class StateMenuFilter extends FixedMenuFilter {
 
 export class SizeMenuFilter extends FixedMenuFilter {
   constructor(collection: FilteredCollection) {
-    var items = [
+    const items = [
       {text: "size-unknown", start: -1, stop: 1},
       {text: "sizes-small", start: 1, stop: 1 << 20},
       {text: "sizes-medium", start: 1 << 20, stop: 250 << 20},
       {text: "sizes-large", start: 250 << 20, stop: 1024 << 20},
       {text: "sizes-huge", start: 1024 << 20},
     ].map(i => {
-      var {text, start, stop} = i;
-      var astop = stop || 0;
-      var fn = typeof stop !== undefined ?
+      const {text, start, stop} = i;
+      const astop = stop || 0;
+      const fn = typeof stop !== undefined ?
         ((item: DownloadItem) =>
           item.totalSize >= start && item.totalSize < astop) :
         ((item: DownloadItem) => item.totalSize >= start);
@@ -340,12 +340,12 @@ export class UrlMenuFilter extends MenuFilter {
   }
 
   async populate() {
-    var filts = await filters();
-    for (var i of filts.all.filter(e => e.id !== "deffilter-all")) {
+    const filts = await filters();
+    for (const i of filts.all.filter(e => e.id !== "deffilter-all")) {
       this.addItem(
         i.label, this.toggleRegularFilter.bind(this, i), this.filters.has(i));
     }
-    var domains = sort(
+    const domains = sort(
       Array.from(new Set(this.collection.items.map(e => e.domain))),
       undefined,
       naturalCaseCompare
@@ -391,7 +391,7 @@ export class UrlMenuFilter extends MenuFilter {
       this.matcher = null;
     }
     else {
-      var exprs = Array.from(this.filters).map(f => Array.from(f)).flat();
+      const exprs = Array.from(this.filters).map(f => Array.from(f)).flat();
       this.matcher = new Matcher(exprs);
     }
 
@@ -464,17 +464,17 @@ export class FilteredCollection extends EventEmitter {
   }
 
   recalculate() {
-    var selection = new Set(this.table.selection);
-    var {focusRow} = this.table;
-    var {filters} = this;
+    const selection = new Set(this.table.selection);
+    const {focusRow} = this.table;
+    const {filters} = this;
     let idx = 0;
 
-    var selected = new Set<DownloadItem>();
+    const selected = new Set<DownloadItem>();
     let focused: DownloadItem | undefined;
 
     if (selection.size) {
       this.filtered.forEach(item => {
-        var {filteredPosition} = item;
+        const {filteredPosition} = item;
 
         if (selection.has(filteredPosition)) {
           selected.add(item);
@@ -506,7 +506,7 @@ export class FilteredCollection extends EventEmitter {
       this.emit("changed");
       return;
     }
-    for (var i of this.filtered) {
+    for (const i of this.filtered) {
       if (selected.has(i)) {
         this.table.selection.add(i.filteredPosition);
       }
@@ -526,7 +526,7 @@ export class FilteredCollection extends EventEmitter {
     if (!Array.isArray(items)) {
       items = [items];
     }
-    var cur = this.filtered.length;
+    const cur = this.filtered.length;
     items = items.filter(item => {
       item.position = this.items.push(item) - 1;
       this.emit("added", item);
@@ -557,7 +557,7 @@ export class FilteredCollection extends EventEmitter {
       return;
     }
     // Find insertion point
-    var idx = this.filtered.findIndex(i => i.position > item.position);
+    const idx = this.filtered.findIndex(i => i.position > item.position);
     if (idx <= 0) {
       // last item
       item.filteredPosition = this.filtered.push(item) - 1;
@@ -598,7 +598,7 @@ export class FilteredCollection extends EventEmitter {
    * @param {boolean} [natural] Sort naturally
    */
   sort(keyfn: (i: DownloadItem) => any, descending = false, natural = false) {
-    var cmp = natural ? naturalCaseCompare : defaultCompare;
+    const cmp = natural ? naturalCaseCompare : defaultCompare;
     let cmpfn = cmp;
     if (descending) {
       cmpfn = (a, b) => -cmp(a, b);
@@ -618,7 +618,7 @@ export class FilteredCollection extends EventEmitter {
       if (id === 0) {
         return;
       }
-      var [item] = this.items.splice(id, 1);
+      const [item] = this.items.splice(id, 1);
       this.items.unshift(item);
       swapped = true;
     });
@@ -630,13 +630,13 @@ export class FilteredCollection extends EventEmitter {
 
   moveBottom(indexes: number[]) {
     let swapped = false;
-    var {length} = this.items;
+    const {length} = this.items;
     this.mapFilteredToAbsolute(indexes).forEach((id, idx) => {
       id -= idx;
       if (id >= length - 1) {
         return;
       }
-      var [item] = this.items.splice(id, 1);
+      const [item] = this.items.splice(id, 1);
       this.items.push(item);
       swapped = true;
     });
@@ -652,7 +652,7 @@ export class FilteredCollection extends EventEmitter {
       if (id - idx === 0) {
         return;
       }
-      var tmp = this.items[id - 1];
+      const tmp = this.items[id - 1];
       this.items[id - 1] = this.items[id];
       this.items[id] = tmp;
       swapped = true;
@@ -664,13 +664,13 @@ export class FilteredCollection extends EventEmitter {
   }
 
   moveDown(indexes: number[]) {
-    var {length} = this.items;
+    const {length} = this.items;
     let swapped = false;
     this.mapFilteredToAbsolute(indexes).reverse().forEach((id, idx) => {
       if (id + idx === length - 1) {
         return;
       }
-      var tmp = this.items[id + 1];
+      const tmp = this.items[id + 1];
       this.items[id + 1] = this.items[id];
       this.items[id] = tmp;
       swapped = true;
