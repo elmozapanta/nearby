@@ -18,21 +18,21 @@ import { Scheduler } from "./scheduler";
 import { Limits } from "./limits";
 import { downloads, runtime, webRequest, CHROME, OPERA } from "../browser";
 
-var US = runtime.getURL("");
+const US = runtime.getURL("");
 
-var AUTOSAVE_TIMEOUT = 2000;
-var DIRTY_TIMEOUT = 100;
+const AUTOSAVE_TIMEOUT = 2000;
+const DIRTY_TIMEOUT = 100;
 // eslint-disable-next-line no-magic-numbers
-var MISSING_TIMEOUT = 12 * 1000;
-var RELOAD_TIMEOUT = 10 * 1000;
-var FINISH_NOTIFICATION_PAUSE = 10 * 1000;
+const MISSING_TIMEOUT = 12 * 1000;
+const RELOAD_TIMEOUT = 10 * 1000;
+const FINISH_NOTIFICATION_PAUSE = 10 * 1000;
 
-var setShelfEnabled = downloads.setShelfEnabled || function() {
+const setShelfEnabled = downloads.setShelfEnabled || function() {
   // ignored
 };
 
-var FINISH_NOTIFICATION = new PrefWatcher("finish-notification", true);
-var SOUNDS = new PrefWatcher("sounds", false);
+const FINISH_NOTIFICATION = new PrefWatcher("finish-notification", true);
+const SOUNDS = new PrefWatcher("sounds", false);
 
 export class Manager extends EventEmitter {
   private items: Download[];
@@ -94,7 +94,7 @@ export class Manager extends EventEmitter {
     this.onDeterminingFilename = this.onDeterminingFilename.bind(this);
 
     Bus.onPort("manager", (port: Port) => {
-      var managerPort = new ManagerPort(this, port);
+      const managerPort = new ManagerPort(this, port);
       port.on("disconnect", () => {
         this.ports.delete(managerPort);
       });
@@ -115,9 +115,9 @@ export class Manager extends EventEmitter {
   }
 
   async init() {
-    var items = await DB.getAll();
+    const items = await DB.getAll();
     items.forEach((i: any, idx: number) => {
-      var rv = new Download(this, i);
+      const rv = new Download(this, i);
       rv.position = idx;
       this.sids.set(rv.sessionId, rv);
       if (rv.manId) {
@@ -142,8 +142,8 @@ export class Manager extends EventEmitter {
   }
 
   async checkMissing() {
-    var serializer = new PromiseSerializer(2);
-    var missing = await Promise.all(this.items.map(
+    const serializer = new PromiseSerializer(2);
+    const missing = await Promise.all(this.items.map(
       item => serializer.scheduleWithContext(item, item.maybeMissing)));
     if (!(await Prefs.get("remove-missing-on-init"))) {
       return;
@@ -152,7 +152,7 @@ export class Manager extends EventEmitter {
   }
 
   onChanged(changes: {id: number}) {
-    var item = this.manIds.get(changes.id);
+    const item = this.manIds.get(changes.id);
     if (!item) {
       return;
     }
@@ -160,7 +160,7 @@ export class Manager extends EventEmitter {
   }
 
   onErased(downloadId: number) {
-    var item = this.manIds.get(downloadId);
+    const item = this.manIds.get(downloadId);
     if (!item) {
       return;
     }
@@ -169,7 +169,7 @@ export class Manager extends EventEmitter {
   }
 
   onDeterminingFilename(state: any, suggest: Function) {
-    var download = this.manIds.get(state.id);
+    const download = this.manIds.get(state.id);
     if (!download) {
       return false;
     }
@@ -178,7 +178,7 @@ export class Manager extends EventEmitter {
       download.updateFromSuggestion(state);
     }
     finally {
-      var suggestion = {
+      const suggestion = {
         filename: download.dest.full,
         conflictAction: download.conflictAction
       };
@@ -201,7 +201,7 @@ export class Manager extends EventEmitter {
       if (!this.scheduler) {
         this.scheduler = new Scheduler(this.items);
       }
-      var next = await this.scheduler.next(this.running);
+      const next = await this.scheduler.next(this.running);
       if (!next) {
         this.maybeRunFinishActions();
         break;
@@ -270,7 +270,7 @@ export class Manager extends EventEmitter {
       return;
     }
     if (SOUNDS.value && !OPERA) {
-      var audio = new Audio(runtime.getURL("/style/done.opus"));
+      const audio = new Audio(runtime.getURL("/style/done.opus"));
       audio.addEventListener("canplaythrough", () => audio.play());
       audio.addEventListener("ended", () => document.body.removeChild(audio));
       audio.addEventListener("error", () => document.body.removeChild(audio));
@@ -299,7 +299,7 @@ export class Manager extends EventEmitter {
       return;
     }
     items = items.map(i => {
-      var dl = new Download(this, i);
+      const dl = new Download(this, i);
       dl.position = this.items.push(dl) - 1;
       this.sids.set(dl.sessionId, dl);
       dl.markDirty();
@@ -337,7 +337,7 @@ export class Manager extends EventEmitter {
   }
 
   setPositions() {
-    var items = this.items.filter((e, idx) => {
+    const items = this.items.filter((e, idx) => {
       if (e.position === idx) {
         return false;
       }
@@ -354,7 +354,7 @@ export class Manager extends EventEmitter {
 
   forEach(sids: number[], cb: (item: Download) => void) {
     sids.forEach(sid => {
-      var download = this.sids.get(sid);
+      const download = this.sids.get(sid);
       if (!download) {
         return;
       }
@@ -434,7 +434,7 @@ export class Manager extends EventEmitter {
   private processDeadlines() {
     this.deadlineTimer = 0;
     try {
-      var now = Date.now();
+      const now = Date.now();
       this.items.forEach(item => {
         if (item.deadline && Math.abs(item.deadline - now) < 1000) {
           this.retrying.delete(item);
@@ -450,9 +450,9 @@ export class Manager extends EventEmitter {
   sorted(sids: number[]) {
     try {
       // Construct new items
-      var currentSids = new Map(this.sids);
+      const currentSids = new Map(this.sids);
       let items = mapFilterInSitu(sids, sid => {
-        var item = currentSids.get(sid);
+        const item = currentSids.get(sid);
         if (!item) {
           return null;
         }
@@ -484,7 +484,7 @@ export class Manager extends EventEmitter {
       item.cancel();
     });
     DB.deleteItems(items).then(() => {
-      var sids = items.map(item => item.sessionId);
+      const sids = items.map(item => item.sessionId);
       sids.forEach(sid => this.sids.delete(sid));
       sort(items.map(item => item.position)).
         reverse().
@@ -496,7 +496,7 @@ export class Manager extends EventEmitter {
   }
 
   removeBySids(sids: number[]) {
-    var items = mapFilterInSitu(sids, sid => this.sids.get(sid), e => !!e);
+    const items = mapFilterInSitu(sids, sid => this.sids.get(sid), e => !!e);
     return this.remove(items);
   }
 
@@ -516,14 +516,14 @@ export class Manager extends EventEmitter {
     if (details.tabId > 0 && !US.startsWith(details.initiator)) {
       return undefined;
     }
-    var sidx = details.requestHeaders.findIndex(
+    const sidx = details.requestHeaders.findIndex(
       (e: any) => e.name.toLowerCase() === "x-dta-id");
     if (sidx < 0) {
       return undefined;
     }
-    var sid = parseInt(details.requestHeaders[sidx].value, 10);
+    const sid = parseInt(details.requestHeaders[sidx].value, 10);
     details.requestHeaders.splice(sidx, 1);
-    var item = this.sids.get(sid);
+    const item = this.sids.get(sid);
     if (!item) {
       return undefined;
     }
@@ -531,7 +531,7 @@ export class Manager extends EventEmitter {
       name: "Referer",
       value: (item.uReferrer || item.uURL).toString()
     });
-    var rv: any = {
+    const rv: any = {
       requestHeaders: details.requestHeaders
     };
     return rv;
@@ -542,7 +542,7 @@ let inited: Promise<Manager>;
 
 export function getManager() {
   if (!inited) {
-    var man = new Manager();
+    const man = new Manager();
     inited = man.init();
   }
   return inited;
