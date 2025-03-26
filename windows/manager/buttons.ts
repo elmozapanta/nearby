@@ -14,7 +14,7 @@ export class Buttons extends EventEmitter {
   }
 
   clicked(evt: MouseEvent) {
-    let target = evt.target as HTMLElement | null;
+    const target = evt.target as HTMLElement | null;
     while (target && target !== this.parent) {
       if (target.classList.contains("button")) {
         var {id} = target;
