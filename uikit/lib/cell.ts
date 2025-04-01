@@ -72,7 +72,7 @@ export class Cell {
 
   invalidate() {
     if (this.iconElem) {
-      const icon = this.getCellIcon() || "";
+      let icon = this.getCellIcon() || "";
       if (icon !== this.icon) {
         this.icon = icon;
         this.iconElem.className = this.icon || "";
@@ -101,7 +101,7 @@ class TextCell extends Cell {
 
   invalidate() {
     super.invalidate();
-    const text = this.getCellText();
+    let text = this.getCellText();
     if (text === this.value) {
       return;
     }
@@ -152,21 +152,21 @@ export class CheckCell extends Cell {
 
   invalidate() {
     super.invalidate();
-    const text = this.getCellText();
+    let text = this.getCellText();
     if (text !== this.text) {
       this.text = this.textElem.textContent = text;
       if (!this.table.hover) {
         this.cell.setAttribute("title", text);
       }
     }
-    const value = this.getCellCheck();
+    let value = this.getCellCheck();
     if (value !== this.value) {
       this.cbElem.checked = this.value = value;
     }
   }
 }
 
-const PROGRESS_MAX = 100;
+let PROGRESS_MAX = 100;
 
 class ProgressCell extends Cell {
   public value: number;
@@ -186,7 +186,7 @@ class ProgressCell extends Cell {
     }
     else {
       addClass(this.meterElem, "progress-bar");
-      const progress = Math.min(
+      let progress = Math.min(
         PROGRESS_MAX, Math.max(0, this.value * PROGRESS_MAX));
       this.meterElem.style.width = `${progress.toFixed(2)}%`;
     }
@@ -202,7 +202,7 @@ class ProgressCell extends Cell {
 
   invalidate() {
     super.invalidate();
-    const value = this.getCellProgress();
+    let value = this.getCellProgress();
     if (value === this.value) {
       return;
     }
@@ -213,7 +213,7 @@ class ProgressCell extends Cell {
     }
     else {
       this.meterElem.classList.remove("virtualtable-progress-undetermined");
-      const progress = Math.min(
+      let progress = Math.min(
         PROGRESS_MAX, Math.max(0, value * PROGRESS_MAX));
       this.meterElem.style.width = `${progress.toFixed(2)}%`;
     }
