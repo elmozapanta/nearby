@@ -35,8 +35,8 @@ function isRecoverable(error: string) {
   }
 }
 
-const RETRIES = new PrefWatcher("retries", 5);
-const RETRY_TIME = new PrefWatcher("retry-time", 5);
+let RETRIES = new PrefWatcher("retries", 5);
+let RETRY_TIME = new PrefWatcher("retry-time", 5);
 
 export class Download extends BaseDownload {
   public manager: Manager;
@@ -67,7 +67,7 @@ export class Download extends BaseDownload {
   }
 
   changeState(newState: number) {
-    const oldState = this.state;
+    let oldState = this.state;
     if (oldState === newState) {
       return;
     }
@@ -82,9 +82,9 @@ export class Download extends BaseDownload {
       throw new Error("invalid state");
     }
     if (this.manId) {
-      const {manId: id} = this;
+      let {manId: id} = this;
       try {
-        const state = (await downloads.search({id})).pop() || {};
+        let state = (await downloads.search({id})).pop() || {};
         if (state.state === "in_progress" && !state.error && !state.paused) {
           this.changeState(RUNNING);
           this.updateStateFromBrowser();
@@ -130,7 +130,7 @@ export class Download extends BaseDownload {
         }
       }
       this.conflictAction = await Prefs.get("conflict-action");
-      const options: DownloadOptions = {
+      let options: DownloadOptions = {
         conflictAction: this.conflictAction,
         saveAs: false,
         url: this.url,
@@ -190,11 +190,11 @@ export class Download extends BaseDownload {
         // Check again, just in case, async and all
         return;
       }
-      const roller = new Preroller(this);
+      let roller = new Preroller(this);
       if (!roller.shouldPreroll) {
         return;
       }
-      const res = await roller.roll();
+      let res = await roller.roll();
       if (!res) {
         return;
       }
@@ -273,7 +273,7 @@ export class Download extends BaseDownload {
   }
 
   async removeFromBrowser() {
-    const {manId: id} = this;
+    let {manId: id} = this;
     try {
       await downloads.cancel(id);
     }
@@ -326,9 +326,9 @@ export class Download extends BaseDownload {
     if (!this.manId) {
       return null;
     }
-    const {manId: id} = this;
+    let {manId: id} = this;
     try {
-      const dls = await downloads.search({id});
+      let dls = await downloads.search({id});
       if (!dls.length) {
         this.setMissing();
         return this;
@@ -343,7 +343,7 @@ export class Download extends BaseDownload {
   }
 
   adoptSize(state: any) {
-    const {
+    let {
       bytesReceived,
       totalBytes,
       fileSize
@@ -354,9 +354,9 @@ export class Download extends BaseDownload {
 
   async updateStateFromBrowser() {
     try {
-      const state = (await downloads.search({id: this.manId})).pop();
-      const {filename, error} = state;
-      const path = parsePath(filename);
+      let state = (await downloads.search({id: this.manId})).pop();
+      let {filename, error} = state;
+      let path = parsePath(filename);
       this.browserName = path.name;
       this.adoptSize(state);
       if (!this.mime && state.mime) {
@@ -401,7 +401,7 @@ export class Download extends BaseDownload {
   }
 
   updateFromSuggestion(state: any) {
-    const res: PrerollResults = {};
+    let res: PrerollResults = {};
     if (state.mime) {
       res.mime = state.mime;
     }
@@ -410,7 +410,7 @@ export class Download extends BaseDownload {
     }
     if (state.finalUrl) {
       res.finalURL = state.finalUrl;
-      const detected = Preroller.maybeFindNameFromSearchParams(this, res);
+      let detected = Preroller.maybeFindNameFromSearchParams(this, res);
       if (detected) {
         res.name = detected;
       }
