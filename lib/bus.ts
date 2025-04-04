@@ -16,8 +16,8 @@ export class Port extends EventEmitter {
 
     // Nasty firefox bug, thus listen for tab removal explicitly
     if (port.sender && port.sender.tab && port.sender.tab.id) {
-      var otherTabId = port.sender.tab.id;
-      var tabListener = (tabId: number) => {
+      const otherTabId = port.sender.tab.id;
+      const tabListener = (tabId: number) => {
         if (tabId !== otherTabId) {
           return;
         }
@@ -34,7 +34,7 @@ export class Port extends EventEmitter {
       return;
     }
     this.disconnected = true;
-    var {port} = this;
+    const {port} = this;
     this.port = null; // Break the cycle
     this.emit("disconnect", this, port);
   }
@@ -91,7 +91,7 @@ export class Port extends EventEmitter {
   }
 }
 
-export var Bus = new class extends EventEmitter {
+export const Bus = new class extends EventEmitter {
   private readonly ports: EventEmitter;
 
   public readonly onPort: (event: string, port: (port: Port) => void) => void;
@@ -123,7 +123,7 @@ export var Bus = new class extends EventEmitter {
       port.disconnect();
       return;
     }
-    var wrapped = new Port(port);
+    const wrapped = new Port(port);
     if (!this.ports.emit(port.name, wrapped)) {
       wrapped.disconnect();
     }
