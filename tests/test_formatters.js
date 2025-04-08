@@ -3,7 +3,7 @@
 "use strict";
 // License: CC0 1.0
 
-let {
+const {
   formatInteger, formatSize, formatSpeed, formatTimeDelta
 } = require("../lib/formatters");
 
