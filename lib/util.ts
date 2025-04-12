@@ -36,7 +36,7 @@ export function timeout<T>(to: number) {
 export function lazy<T>(object: any, name: string, fun: (...any: any[]) => T) {
   Object.defineProperty(object, name, {
     get() {
-      var value = fun();
+      const value = fun();
       Object.defineProperty(object, name, {
         value,
         enumerable: true, writable: true, configurable: true
@@ -63,8 +63,8 @@ export function sanitizePathGeneric(path: string) {
     trim();
 }
 
-var REG_TRIMMORE = /^[\s.]+|[\s.]+$/g;
-var REG_RESERVED = new RegExp(
+const REG_TRIMMORE = /^[\s.]+|[\s.]+$/g;
+const REG_RESERVED = new RegExp(
   `^(?:${"CON, PRN, AUX, NUL, COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9, LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, LPT9".split(", ").join("|")})(?:\\..*)$`,
   "i");
 
@@ -88,12 +88,12 @@ export function sanitizePathWindows(path: string) {
 }
 
 // Cannot use browser.runtime here
-export var IS_WIN = typeof navigator !== "undefined" &&
+export const IS_WIN = typeof navigator !== "undefined" &&
   navigator.platform &&
   navigator.platform.includes("Win");
 
 
-export var sanitizePath = identity(
+export const sanitizePath = identity(
   IS_WIN ? sanitizePathWindows : sanitizePathGeneric);
 
 export class PathInfo {
@@ -160,18 +160,18 @@ export class PathInfo {
 }
 
 // XXX cleanup + test
-export var parsePath = memoize(function parsePath(
+export const parsePath = memoize(function parsePath(
     path: string | URL): PathInfo {
   if (path instanceof URL) {
     path = decodeURIComponent(path.pathname);
   }
   path = path.trim().replace(/\\/g, "/");
-  var pieces = path.split("/").
+  const pieces = path.split("/").
     map((e: string) => sanitizePath(e)).
     filter((e: string) => e && e !== ".");
 
-  var name = path.endsWith("/") ? "" : pieces.pop() || "";
-  var idx = name.lastIndexOf(".");
+  const name = path.endsWith("/") ? "" : pieces.pop() || "";
+  const idx = name.lastIndexOf(".");
   let base = name;
   let ext = "";
   if (idx >= 0) {
@@ -222,13 +222,13 @@ export class CoalescedUpdate<T> extends Set<T> {
     if (!this.size) {
       return;
     }
-    var a = Array.from(this);
+    const a = Array.from(this);
     this.clear();
     this.cb(a);
   }
 }
 
-export var hostToDomain = memoize(psl.get, 1000);
+export const hostToDomain = memoize(psl.get, 1000);
 
 export interface URLd extends URL {
   domain: string;
@@ -237,7 +237,7 @@ export interface URLd extends URL {
 Object.defineProperty(URL.prototype, "domain", {
   get() {
     try {
-      var {hostname} = this;
+      const {hostname} = this;
       return IPReg.test(hostname) ?
         hostname :
         hostToDomain(hostname) || hostname;
@@ -263,9 +263,9 @@ export function filterInSitu<T>(
     arr: (T | null | undefined)[], cb: (value: T) => boolean, tp?: any) {
   tp = tp || null;
   let i; let k; let e;
-  var carr = arr as unknown as T[];
+  const carr = arr as unknown as T[];
   for (i = 0, k = 0, e = arr.length; i < e; i++) {
-    var a = arr[i]; // replace filtered items
+    const a = arr[i]; // replace filtered items
     if (!a) {
       continue;
     }
@@ -287,7 +287,7 @@ export function filterInSitu<T>(
  */
 export function mapInSitu<TRes, T>(arr: T[], cb: (value: T) => TRes, tp?: any) {
   tp = tp || null;
-  var carr = arr as unknown as TRes[];
+  const carr = arr as unknown as TRes[];
 
   for (let i = 0, e = arr.length; i < e; i++) {
     carr[i] = cb.call(tp, arr[i], i, arr);
@@ -309,11 +309,11 @@ export function filterMapInSitu<TRes, T>(
     mapStep: (value: T) => TRes,
     tp?: any) {
   tp = tp || null;
-  var carr = arr as unknown as TRes[];
+  const carr = arr as unknown as TRes[];
 
   let i; let k; let e;
   for (i = 0, k = 0, e = arr.length; i < e; i++) {
-    var a = arr[i]; // replace filtered items
+    const a = arr[i]; // replace filtered items
     if (a && filterStep.call(tp, a, i, arr)) {
       carr[k] = mapStep.call(tp, a, i, arr);
       k += 1;
@@ -338,11 +338,11 @@ export function mapFilterInSitu<TRes, T>(
     filterStep: (value: T) => boolean,
     tp?: any) {
   tp = tp || null;
-  var carr = arr as unknown as TRes[];
+  const carr = arr as unknown as TRes[];
 
   let i; let k; let e;
   for (i = 0, k = 0, e = arr.length; i < e; i++) {
-    var a = carr[k] = mapStep.call(tp, arr[i], i, arr);
+    const a = carr[k] = mapStep.call(tp, arr[i], i, arr);
     if (a && filterStep.call(tp, a, i, arr)) {
       k += 1;
     }
