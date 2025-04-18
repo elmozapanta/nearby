@@ -4,9 +4,9 @@
 import * as _DownloadState from "../../lib/manager/state";
 import { _, locale } from "../../lib/i18n";
 
-export let DownloadState = _DownloadState;
+export const DownloadState = _DownloadState;
 
-export let StateTexts = locale.then(() => Object.freeze(new Map([
+export const StateTexts = locale.then(() => Object.freeze(new Map([
   [DownloadState.QUEUED, _("queued")],
   [DownloadState.RUNNING, _("running")],
   [DownloadState.FINISHING, _("finishing")],
@@ -17,7 +17,7 @@ export let StateTexts = locale.then(() => Object.freeze(new Map([
   [DownloadState.MISSING, _("missing")],
 ])));
 
-export let StateClasses = Object.freeze(new Map([
+export const StateClasses = Object.freeze(new Map([
   [DownloadState.QUEUED, "queued"],
   [DownloadState.RUNNING, "running"],
   [DownloadState.FINISHING, "finishing"],
@@ -28,7 +28,7 @@ export let StateClasses = Object.freeze(new Map([
   [DownloadState.MISSING, "missing"],
 ]));
 
-export let StateIcons = Object.freeze(new Map([
+export const StateIcons = Object.freeze(new Map([
   [DownloadState.QUEUED, "icon-pause"],
   [DownloadState.RUNNING, "icon-go"],
   [DownloadState.FINISHING, "icon-go"],
